@@ -1,6 +1,6 @@
 from setuptools import setup
 
-# from sphobjinv import __version__
+from stdio_mgr import __version__
 
 
 def readme():
@@ -10,7 +10,7 @@ def readme():
 
 setup(
     name='stdio_mgr',
-    version="0.0", #__version__,
+    version=__version__,
     packages=['stdio_mgr'],
     install_requires=['attrs>=17'],
     provides=['stdio_mgr'],
