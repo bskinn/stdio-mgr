@@ -1,6 +1,6 @@
 from setuptools import setup
 
-from sphobjinv import __version__
+# from sphobjinv import __version__
 
 
 def readme():
@@ -9,24 +9,20 @@ def readme():
 
 
 setup(
-    name='sphobjinv',
-    version=__version__,
-    packages=['sphobjinv'],
-    install_requires=['attrs>=17', 'fuzzywuzzy>=0.3', 'jsonschema>=2.0',
-                      'certifi'],
-    provides=['sphobjinv'],
-    requires=['attrs (>=17.1)', 'certifi', 'fuzzywuzzy (>=0.3)',
-              'jsonschema (>=2.0)'],
-    url='https://www.github.com/bskinn/sphobjinv',
+    name='stdio_mgr',
+    version="0.0", #__version__,
+    packages=['stdio_mgr'],
+    install_requires=['attrs>=17'],
+    provides=['stdio_mgr'],
+    requires=['attrs (>=17.1)'],
+    url='https://www.github.com/bskinn/stdio-mgr',
     license='MIT License',
     author='Brian Skinn',
     author_email='bskinn@alum.mit.edu',
-    description='Sphinx Objects.inv Encoder/Decoder',
+    description='Context manager for wrapping/masking stdin/stdout/stderr',
     long_description=readme(),
     classifiers=['License :: OSI Approved :: MIT License',
                  'Natural Language :: English',
-                 'Environment :: Console',
-                 'Framework :: Sphinx',
                  'Intended Audience :: Developers',
                  'Operating System :: OS Independent',
                  'Programming Language :: Python :: 3 :: Only',
@@ -34,11 +30,6 @@ setup(
                  'Programming Language :: Python :: 3.5',
                  'Programming Language :: Python :: 3.6',
                  'Topic :: Software Development :: Libraries :: Python Modules',
-                 'Topic :: Utilities',
-                 'Development Status :: 5 - Production/Stable'],
-    entry_points={
-        'console_scripts': [
-            'sphobjinv = sphobjinv.cmdline:main'
-                           ]
-                  }
+                 'Topic :: Testing',
+                 'Development Status :: 4 - Beta'],
 )
