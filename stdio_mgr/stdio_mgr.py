@@ -51,7 +51,7 @@ class TeeStdin(StringIO):
         """Call normal __init__ on superclass."""
         super().__init__(self.init_text)
 
-    def read(self, size=None):
+    def read(self, size=None):  # pragma: no cover
         """Tee text to side buffer when read."""
         text = super().read(size)
         self.tee.write(text)
@@ -73,29 +73,35 @@ class TeeStdin(StringIO):
 
 
 @contextmanager
-def stdio_mgr(in_sys, cmd_str=''):
+def stdio_mgr(cmd_str=''):
     """Prepare indicated sys for wrapped/mocked I/O."""
-    old_stdin = in_sys.stdin
-    old_stdout = in_sys.stdout
-    old_stderr = in_sys.stderr
+    import sys
+
+    old_stdin = sys.stdin
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
 
     new_stdout = StringIO()
     new_stderr = StringIO()
     new_stdin = TeeStdin(new_stdout, cmd_str)
 
-    in_sys.stdin = new_stdin
-    in_sys.stdout = new_stdout
-    in_sys.stderr = new_stderr
+    sys.stdin = new_stdin
+    sys.stdout = new_stdout
+    sys.stderr = new_stderr
 
     yield new_stdin, new_stdout, new_stderr
 
-    in_sys.stdin = old_stdin
-    in_sys.stdout = old_stdout
-    in_sys.stderr = old_stderr
+    sys.stdin = old_stdin
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
 
-    in_sys.stdout.write(new_stdout.read())
-    in_sys.stderr.write(new_stderr.read())
+    sys.stdout.write(new_stdout.read())
+    sys.stderr.write(new_stderr.read())
 
     new_stdin.close()
     new_stdout.close()
     new_stderr.close()
+
+
+if __name__ == '__main__':  # pragma: no cover
+    print("Module not executable.")
