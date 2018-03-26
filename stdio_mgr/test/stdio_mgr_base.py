@@ -97,7 +97,7 @@ class TestStdioMgrExpectGood(ut.TestCase):
             self.assertEqual(str2[:-1], out_str)
 
 
-TestStdioMgrReadme = dt.DocFileSuite(osp.abspath('README.rst'))
+TestStdioMgrReadme = dt.DocFileSuite(osp.abspath('README.rst'), module_relative=False)
 
 
 def suite_all():
