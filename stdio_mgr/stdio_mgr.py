@@ -51,7 +51,7 @@ class TeeStdin(StringIO):
         """Call normal __init__ on superclass."""
         super().__init__(self.init_text)
 
-    def read(self, size=None):
+    def read(self, size=None):  # pragma: no cover
         """Tee text to side buffer when read."""
         text = super().read(size)
         self.tee.write(text)
@@ -99,3 +99,7 @@ def stdio_mgr(in_sys, cmd_str=''):
     new_stdin.close()
     new_stdout.close()
     new_stderr.close()
+
+
+if __name__ == '__main__':  # pragma: no cover
+    print("Module not executable.")
