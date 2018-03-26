@@ -31,7 +31,6 @@ wrap functions that directly interact with `stdio`. Example:
 
     >>> def embellish(func):
     ...     def func_wrapper(s):
-    ...         import sys
     ...         from stdio_mgr import stdio_mgr
     ...
     ...         with stdio_mgr() as (i, o, e):
