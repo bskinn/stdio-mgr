@@ -17,6 +17,8 @@ stdio Manager
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
     :target: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
 
+*README draft in progress.*
+
 Have a command-line Python application? Want to test *[...continued]*
 
 
