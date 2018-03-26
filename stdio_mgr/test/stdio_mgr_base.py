@@ -15,6 +15,8 @@
 
 """Base submodule for the stdio_mgr test suite."""
 
+import doctest as dt
+import os.path as osp
 import unittest as ut
 
 
@@ -23,10 +25,9 @@ class TestStdioMgrExpectGood(ut.TestCase):
 
     def test_CaptureStdout(self):
         """Confirm stdout capture."""
-        import sys
         from stdio_mgr import stdio_mgr
 
-        with stdio_mgr(sys) as (i, o, e):
+        with stdio_mgr() as (i, o, e):
             s = 'test str'
             print(s)
 
@@ -35,11 +36,10 @@ class TestStdioMgrExpectGood(ut.TestCase):
 
     def test_CaptureStderr(self):
         """Confirm stderr capture."""
-        import sys
         import warnings
         from stdio_mgr import stdio_mgr
 
-        with stdio_mgr(sys) as (i, o, e):
+        with stdio_mgr() as (i, o, e):
             w = 'This is a warning'
             warnings.warn(w)
 
@@ -48,12 +48,11 @@ class TestStdioMgrExpectGood(ut.TestCase):
 
     def test_DefaultStdin(self):
         """Confirm stdin default-populate."""
-        import sys
         from stdio_mgr import stdio_mgr
 
         in_str = 'This is a test string.\n'
 
-        with stdio_mgr(sys, in_str) as (i, o, e):
+        with stdio_mgr(in_str) as (i, o, e):
             self.assertEqual(in_str, i.getvalue())
 
             out_str = input()
@@ -67,13 +66,12 @@ class TestStdioMgrExpectGood(ut.TestCase):
 
     def test_ManagedStdin(self):
         """Confirm stdin populate within context."""
-        import sys
         from stdio_mgr import stdio_mgr
 
         str1 = 'This is a test string.'
         str2 = 'This is another test string.\n'
 
-        with stdio_mgr(sys) as (i, o, e):
+        with stdio_mgr() as (i, o, e):
             # Preload str1 to stdout, and check. As above, 'print'
             # appends a newline
             print(str1)
@@ -99,11 +97,15 @@ class TestStdioMgrExpectGood(ut.TestCase):
             self.assertEqual(str2[:-1], out_str)
 
 
+TestStdioMgrReadme = dt.DocFileSuite(osp.abspath('README.rst'))
+
+
 def suite_all():
     """Create and return the test suite for all tests."""
     s = ut.TestSuite()
     tl = ut.TestLoader()
-    s.addTests([tl.loadTestsFromTestCase(TestStdioMgrExpectGood)])
+    s.addTests([tl.loadTestsFromTestCase(TestStdioMgrExpectGood),
+                TestStdioMgrReadme])
 
     return s
 
