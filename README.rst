@@ -13,8 +13,9 @@ stdio Manager
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
     :target: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
 
-|larger|\ **Have a command-line Python application?
-Want to automate testing of the actual console input & output
+|larger|\ **Have a command-line Python application?**\ |/larger|
+
+|larger|\ **Want to automate testing of the actual console input & output
 of your user-facing CLI components?**\ |/larger|
 
 |larger|\ `stdio Manager` can help.\ |/larger|
@@ -32,7 +33,7 @@ been imported via:
 
 .. code::
 
-    ``from stdio_mgr import stdio_mgr``.
+    from stdio_mgr import stdio_mgr
 
 |large|\ **Mock** ``stdout``\ **:**\ |/large|
 
@@ -60,7 +61,7 @@ and not just ``'foobar'``.
     ...     warnings.warn("'foo' has no 'bar'")
     ...     capture = err_.getvalue()
     >>> capture
-    "C:\\Temp\\git\\stdiomgr\\README.rst:2: UserWarning: 'foo' has no 'bar'\n  =============\n"
+    "...README.rst:2: UserWarning: 'foo' has no 'bar'\n  =============\n"
 
 
 |large|\ **Mock** ``stdin``\ **:**\ |/large|
@@ -106,11 +107,11 @@ wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` examp
 
     >>> testfunc("""\
     ... Foo bar baz quux.
-    ... Lorem ipsum dolor sit amet....""")
-    ==================================
-    | Foo bar baz quux.              |
-    | Lorem ipsum dolor sit amet.... |
-    ==================================
+    ... Lorem ipsum dolor sit amet.""")
+    ===============================
+    | Foo bar baz quux.           |
+    | Lorem ipsum dolor sit amet. |
+    ===============================
 
 
 

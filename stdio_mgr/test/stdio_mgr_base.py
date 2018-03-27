@@ -105,7 +105,8 @@ def setup_stdiomgr_import(dt_obj):
 
 TestStdioMgrReadme = dt.DocFileSuite(osp.abspath('README.rst'),
                                      module_relative=False,
-                                     setUp=setup_stdiomgr_import)
+                                     setUp=setup_stdiomgr_import,
+                                     optionflags=dt.ELLIPSIS)
 
 
 def suite_all():
