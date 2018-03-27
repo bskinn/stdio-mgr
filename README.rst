@@ -13,12 +13,13 @@ stdio Manager
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
     :target: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
 
-**Have a command-line Python application?
-Want to automate testing of your user-facing CLI components?**
+|larger|\ **Have a command-line Python application?
+Want to automate testing of the actual console input & output
+of your user-facing CLI components?**\ |/larger|
 
-`stdio Manager` can help.
+|larger|\ `stdio Manager` can help.\ |/larger|
 
-First, install:
+|large|\ **First, install:**\ |/large|
 
 .. code::
 
@@ -26,32 +27,55 @@ First, install:
 
 Then use!
 
-Mock ``stdout``:
+All of the below examples assume ``stdio_mgr`` has already
+been imported via:
 
 .. code::
 
-    >>> from stdio_mgr import stdio_mgr
+    ``from stdio_mgr import stdio_mgr``.
+
+|large|\ **Mock** ``stdout``\ **:**\ |/large|
+
+.. code::
+
     >>> with stdio_mgr() as (in_, out_, err_):
     ...     print('foobar')
     ...     capture = out_.getvalue()
-    >>> print(capture)
-    foobar
-    <BLANKLINE>
+    >>> capture
+    'foobar\n'
 
 Note that by default ``print``
 `appends a newline <https://docs.python.org/3/library/functions.html#print>`__
-after its argument *each time it's called*. So, ``capture`` actually refers to ``'foobar\n'``,
-and the ``print(capture)`` call outputs two newlines total.
-The ``<BLANKLINE>`` is thus
-`needed <https://docs.python.org/2/library/doctest.html#how-are-docstring-examples-recognized>`__
-to make the above example pass in ``doctest``.
-
-*[more about mocking stdio]*
+after each argument, which is why ``capture`` is ``'foobar\n'``
+and not just ``'foobar'``.
 
 
-**Want to modify the internal printing behavior of a function?**
+|large|\ **Mock** ``stderr``\ **:**\ |/large|
 
-In addition to mocking `stdio` for testing, `stdio_mgr` can also be used to
+.. code ::
+
+    >>> import warnings
+    >>> from stdio_mgr import stdio_mgr
+    >>> with stdio_mgr() as (in_, out_, err_):
+    ...     warnings.warn("'foo' has no 'bar'")
+    ...     capture = err_.getvalue()
+    >>> capture
+    "C:\\Temp\\git\\stdiomgr\\README.rst:2: UserWarning: 'foo' has no 'bar'\n  =============\n"
+
+
+|large|\ **Mock** ``stdin``\ **:**\ |/large|
+
+The simulated user input has to be pre-loaded to the mocked stream.
+Either provide it as an argument to ``stdio_mgr``:
+
+.. code ::
+
+    >>> # COMPLETE THIS
+
+
+|larger|\ **Want to modify the internal printing behavior of a function?**\ |/larger|
+
+In addition to mocking ``stdio`` for testing, ``stdio_mgr`` can also be used to
 wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` example:
 
 .. code::
@@ -88,3 +112,21 @@ wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` examp
     | Lorem ipsum dolor sit amet.... |
     ==================================
 
+
+
+.. |large| raw:: html
+
+    <span style="font-size: 110%">
+
+.. |/large| raw:: html
+
+    </span>
+
+
+.. |larger| raw:: html
+
+    <span style="font-size: 125%">
+
+.. |/larger| raw:: html
+
+    </span>
