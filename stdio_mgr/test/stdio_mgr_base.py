@@ -97,8 +97,16 @@ class TestStdioMgrExpectGood(ut.TestCase):
             self.assertEqual(str2[:-1], out_str)
 
 
+def setup_stdiomgr_import(dt_obj):
+    """Import stdio_mgr into the test globals."""
+    from stdio_mgr import stdio_mgr
+    dt_obj.globs.update({'stdio_mgr': stdio_mgr})
+
+
 TestStdioMgrReadme = dt.DocFileSuite(osp.abspath('README.rst'),
-                                     module_relative=False)
+                                     module_relative=False,
+                                     setUp=setup_stdiomgr_import,
+                                     optionflags=dt.ELLIPSIS)
 
 
 def suite_all():
