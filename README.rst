@@ -20,6 +20,12 @@ of your user-facing components?**\ |/larger|
 
 |larger|\ `stdio Manager` can help.\ |/larger|
 
+While some functionality here is more or less duplicative of
+``redirect_stdout`` and ``redirect_stderr`` in ``contextlib``
+`within the standard library <https://docs.python.org/3/library/contextlib.html#contextlib.redirect_stdout>`__,
+it provides (i) a much more concise way to mock both ``stdout`` and ``stderr`` at the same time,
+and (ii) a mechanism for mocking ``stdin``, which is not available in ``contextlib``.
+
 |large|\ **First, install:**\ |/large|
 
 .. code::
@@ -49,7 +55,7 @@ been imported via:
 
 By default ``print``
 `appends a newline <https://docs.python.org/3/library/functions.html#print>`__
-after each argument, which is why ``capture`` is ``'foobar\n'``
+after each argument, which is why ``out_cap`` is ``'foobar\n'``
 and not just ``'foobar'``.
 
 As currently implemented, ``stdio_mgr`` closes all three mocked streams
@@ -72,12 +78,12 @@ upon exiting the managed context.
 |large|\ **Mock** ``stdin``\ **:**\ |/large|
 
 The simulated user input has to be pre-loaded to the mocked stream.
-**Be sure to include trailing newlines in the mocked input
-for each mocked** |kbd|\ Enter\ |/kbd| **keypress!**
+**Be sure to include newlines in the input to correspond to
+each mocked** |kbd|\ Enter\ |/kbd| **keypress!**
 Otherwise, ``input`` will hang, waiting for a newline
 that will never come.
 
-If the entirety of the needed input is known in advance,
+If the entirety of the input is known in advance,
 it can just be provided as an argument to ``stdio_mgr``.
 Otherwise, ``.append()`` mocked input to ``in_``
 within the managed context as needed:
@@ -101,18 +107,18 @@ within the managed context as needed:
 
 The ``_ =`` assignment suppresses ``print``\ ing of the return value
 from the ``in_.append()`` call--otherwise, it would be interleaved
-in ``out_cap``, since this example is executed in an interactive context.
-For non-interactive execution, as with ``unittest`` or ``pytest``,
+in ``out_cap``, since this example is shown for an interactive context.
+For non-interactive execution, as with ``unittest``, ``pytest``, etc.,
 these 'muting' assignments should not be necessary.
 
-**Both** the ``'??? '`` prompt for ``input``
-**and** the mocked CLI input string passed to ``stdio_mgr``
+**Both** the ``'??? '`` prompts for ``input``
+**and** the mocked input strings
 are echoed to ``out_``, mimicking what a CLI user would see.
 
 A subtlety: While the trailing newline on, e.g., ``'foobar\n'`` is stripped
 by ``input``, it is *retained* in ``out_``.
-This is because ``in_`` tees the content it reads to ``out_``
-*before* it's passed to ``input``.
+This is because ``in_`` tees the content read from it to ``out_``
+*before* that content is passed to ``input``.
 
 
 |larger|\ **Want to modify internal** ``print`` **calls
@@ -156,7 +162,7 @@ wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` examp
     ===============================
 
 
-|large|\ **Feature requests and bug reports are welcomed!**\ |/large|
+|large|\ **Feature requests or bug reports?**\ |/large|
 
 Please submit them as GitHub `Issues <https://github.com/bskinn/stdio-mgr/issues>`__.
 
