@@ -72,31 +72,19 @@ upon exiting the managed context.
 |large|\ **Mock** ``stdin``\ **:**\ |/large|
 
 The simulated user input has to be pre-loaded to the mocked stream.
-**Be sure to include a trailing newline in the mocked input!**
+**Be sure to include trailing newlines in the mocked input
+for each mocked** |kbd|\ Enter\ |/kbd| **keypress!**
 Otherwise, ``input`` will hang, waiting for a newline
 that will never come.
 
 If the entirety of the needed input is known in advance,
-it can just be provided as an argument to ``stdio_mgr``:
+it can just be provided as an argument to ``stdio_mgr``.
+Otherwise, ``.append()`` mocked input to ``in_``
+within the managed context as needed:
 
 .. code::
 
     >>> with stdio_mgr('foobar\n') as (in_, out_, err_):
-    ...     print('baz')
-    ...     in_cap = input('??? ')
-    ...     out_cap = out_.getvalue()
-    >>> in_cap
-    'foobar'
-    >>> out_cap
-    'baz\n??? foobar\n'
-
-Otherwise, just ``.append()`` mocked input to ``in_``
-within the managed context, as needed:
-
-.. code::
-
-    >>> with stdio_mgr() as (in_, out_, err_):
-    ...     _ = in_.append('foobar\n')
     ...     print('baz')
     ...     in_cap = input('??? ')
     ...
@@ -111,12 +99,15 @@ within the managed context, as needed:
     >>> out_cap
     'baz\n??? foobar\n??? foo\n'
 
-The ``_ =`` assignments suppress ``print``\ ing of the return values
-from ``in_.append()`` in [[[continue]]]
+The ``_ =`` assignment suppresses ``print``\ ing of the return value
+from the ``in_.append()`` call--otherwise, it would be interleaved
+in ``out_cap``, since this example is executed in an interactive context.
+For non-interactive execution, as with ``unittest`` or ``pytest``,
+these 'muting' assignments should not be necessary.
 
 **Both** the ``'??? '`` prompt for ``input``
 **and** the mocked CLI input string passed to ``stdio_mgr``
-are echoed to ``out_``, exactly mimicking what a CLI user would see.
+are echoed to ``out_``, mimicking what a CLI user would see.
 
 A subtlety: While the trailing newline on, e.g., ``'foobar\n'`` is stripped
 by ``input``, it is *retained* in ``out_``.
@@ -187,3 +178,12 @@ Please submit them as GitHub `Issues <https://github.com/bskinn/stdio-mgr/issues
 .. |/larger| raw:: html
 
     </span>
+
+
+.. |kbd| raw:: html
+
+    <kbd>
+
+.. |/kbd| raw:: html
+
+    </kbd>
