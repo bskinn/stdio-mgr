@@ -13,10 +13,10 @@ stdio Manager
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
     :target: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
 
-|larger|\ **Have a command-line Python application?**\ |/larger|
+|larger|\ **Have a CLI Python application?**\ |/larger|
 
 |larger|\ **Want to automate testing of the actual console input & output
-of your user-facing CLI components?**\ |/larger|
+of your user-facing components?**\ |/larger|
 
 |larger|\ `stdio Manager` can help.\ |/larger|
 
@@ -41,14 +41,19 @@ been imported via:
 
     >>> with stdio_mgr() as (in_, out_, err_):
     ...     print('foobar')
-    ...     capture = out_.getvalue()
-    >>> capture
+    ...     out_cap = out_.getvalue()
+    >>> out_cap
     'foobar\n'
+    >>> in_.closed and out_.closed and err_.closed
+    True
 
-Note that by default ``print``
+By default ``print``
 `appends a newline <https://docs.python.org/3/library/functions.html#print>`__
 after each argument, which is why ``capture`` is ``'foobar\n'``
 and not just ``'foobar'``.
+
+As currently implemented, ``stdio_mgr`` closes all three mocked streams
+upon exiting the managed context.
 
 
 |large|\ **Mock** ``stderr``\ **:**\ |/large|
@@ -59,24 +64,70 @@ and not just ``'foobar'``.
     >>> from stdio_mgr import stdio_mgr
     >>> with stdio_mgr() as (in_, out_, err_):
     ...     warnings.warn("'foo' has no 'bar'")
-    ...     capture = err_.getvalue()
-    >>> capture
+    ...     err_cap = err_.getvalue()
+    >>> err_cap
     "...README.rst:2: UserWarning: 'foo' has no 'bar'\n  =============\n"
 
 
 |large|\ **Mock** ``stdin``\ **:**\ |/large|
 
 The simulated user input has to be pre-loaded to the mocked stream.
-Either provide it as an argument to ``stdio_mgr``:
+**Be sure to include a trailing newline in the mocked input!**
+Otherwise, ``input`` will hang, waiting for a newline
+that will never come.
 
-.. code ::
+If the entirety of the needed input is known in advance,
+it can just be provided as an argument to ``stdio_mgr``:
 
-    >>> # COMPLETE THIS
+.. code::
+
+    >>> with stdio_mgr('foobar\n') as (in_, out_, err_):
+    ...     print('baz')
+    ...     in_cap = input('??? ')
+    ...     out_cap = out_.getvalue()
+    >>> in_cap
+    'foobar'
+    >>> out_cap
+    'baz\n??? foobar\n'
+
+Otherwise, just ``.append()`` mocked input to ``in_``
+within the managed context, as needed:
+
+.. code::
+
+    >>> with stdio_mgr() as (in_, out_, err_):
+    ...     _ = in_.append('foobar\n')
+    ...     print('baz')
+    ...     in_cap = input('??? ')
+    ...
+    ...     _ = in_.append(in_cap[:3] + '\n')
+    ...     in_cap2 = input('??? ')
+    ...
+    ...     out_cap = out_.getvalue()
+    >>> in_cap
+    'foobar'
+    >>> in_cap2
+    'foo'
+    >>> out_cap
+    'baz\n??? foobar\n??? foo\n'
+
+The ``_ =`` assignments suppress ``print``\ ing of the return values
+from ``in_.append()`` in [[[continue]]]
+
+**Both** the ``'??? '`` prompt for ``input``
+**and** the mocked CLI input string passed to ``stdio_mgr``
+are echoed to ``out_``, exactly mimicking what a CLI user would see.
+
+A subtlety: While the trailing newline on, e.g., ``'foobar\n'`` is stripped
+by ``input``, it is *retained* in ``out_``.
+This is because ``in_`` tees the content it reads to ``out_``
+*before* it's passed to ``input``.
 
 
-|larger|\ **Want to modify the internal printing behavior of a function?**\ |/larger|
+|larger|\ **Want to modify internal** ``print`` **calls
+within a function or method?**\ |/larger|
 
-In addition to mocking ``stdio`` for testing, ``stdio_mgr`` can also be used to
+In addition to mocking, ``stdio_mgr`` can also be used to
 wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` example:
 
 .. code::
@@ -112,6 +163,11 @@ wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` examp
     | Foo bar baz quux.           |
     | Lorem ipsum dolor sit amet. |
     ===============================
+
+
+|large|\ **Feature requests and bug reports are welcomed!**\ |/large|
+
+Please submit them as GitHub `Issues <https://github.com/bskinn/stdio-mgr/issues>`__.
 
 
 

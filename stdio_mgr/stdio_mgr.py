@@ -17,7 +17,7 @@ interactions.
     http://www.github.com/bskinn/stdio-mgr
 
 **Documentation**
-    [pending]
+    See README.rst at the GitHub repository
 
 **License**
     The MIT License; see |license_txt|_ for full license terms
@@ -73,7 +73,7 @@ class TeeStdin(StringIO):
 
 
 @contextmanager
-def stdio_mgr(cmd_str=''):
+def stdio_mgr(in_str=''):
     """Prepare indicated sys for wrapped/mocked I/O."""
     import sys
 
@@ -83,7 +83,7 @@ def stdio_mgr(cmd_str=''):
 
     new_stdout = StringIO()
     new_stderr = StringIO()
-    new_stdin = TeeStdin(new_stdout, cmd_str)
+    new_stdin = TeeStdin(new_stdout, in_str)
 
     sys.stdin = new_stdin
     sys.stdout = new_stdout
