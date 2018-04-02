@@ -67,7 +67,6 @@ upon exiting the managed context.
 .. code ::
 
     >>> import warnings
-    >>> from stdio_mgr import stdio_mgr
     >>> with stdio_mgr() as (in_, out_, err_):
     ...     warnings.warn("'foo' has no 'bar'")
     ...     err_cap = err_.getvalue()
