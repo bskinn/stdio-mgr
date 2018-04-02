@@ -5,20 +5,24 @@ stdio Manager
 
 .. image:: https://travis-ci.org/bskinn/stdio-mgr.svg?branch=dev
     :target: https://travis-ci.org/bskinn/stdio-mgr
+
 .. image:: https://codecov.io/gh/bskinn/stdio-mgr/branch/dev/graph/badge.svg
     :target: https://codecov.io/gh/bskinn/stdio-mgr
+
 .. image:: https://img.shields.io/pypi/v/stdio_mgr.svg
     :target: https://pypi.org/project/stdio-mgr
+
 .. image:: https://img.shields.io/pypi/pyversions/stdio-mgr.svg
+
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
     :target: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
 
-|larger|\ **Have a CLI Python application?**\ |/larger|
+**Have a CLI Python application?**
 
-|larger|\ **Want to automate testing of the actual console input & output
-of your user-facing components?**\ |/larger|
+**Want to automate testing of the actual console input & output
+of your user-facing components?**
 
-|larger|\ `stdio Manager` can help.\ |/larger|
+`stdio Manager` can help.
 
 While some functionality here is more or less duplicative of
 ``redirect_stdout`` and ``redirect_stderr`` in ``contextlib``
@@ -26,7 +30,7 @@ While some functionality here is more or less duplicative of
 it provides (i) a much more concise way to mock both ``stdout`` and ``stderr`` at the same time,
 and (ii) a mechanism for mocking ``stdin``, which is not available in ``contextlib``.
 
-|large|\ **First, install:**\ |/large|
+**First, install:**
 
 .. code::
 
@@ -41,7 +45,7 @@ been imported via:
 
     from stdio_mgr import stdio_mgr
 
-|large|\ **Mock** ``stdout``\ **:**\ |/large|
+**Mock** ``stdout``\ **:**
 
 .. code::
 
@@ -62,7 +66,7 @@ As currently implemented, ``stdio_mgr`` closes all three mocked streams
 upon exiting the managed context.
 
 
-|large|\ **Mock** ``stderr``\ **:**\ |/large|
+**Mock** ``stderr``\ **:**
 
 .. code ::
 
@@ -74,11 +78,11 @@ upon exiting the managed context.
     "...README.rst:2: UserWarning: 'foo' has no 'bar'\n  =============\n"
 
 
-|large|\ **Mock** ``stdin``\ **:**\ |/large|
+**Mock** ``stdin``\ **:**
 
 The simulated user input has to be pre-loaded to the mocked stream.
 **Be sure to include newlines in the input to correspond to
-each mocked** |kbd|\ Enter\ |/kbd| **keypress!**
+each mocked** `Enter` **keypress!**
 Otherwise, ``input`` will hang, waiting for a newline
 that will never come.
 
@@ -120,8 +124,8 @@ This is because ``in_`` tees the content read from it to ``out_``
 *before* that content is passed to ``input``.
 
 
-|larger|\ **Want to modify internal** ``print`` **calls
-within a function or method?**\ |/larger|
+**Want to modify internal** ``print`` **calls
+within a function or method?**
 
 In addition to mocking, ``stdio_mgr`` can also be used to
 wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` example:
@@ -161,34 +165,10 @@ wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` examp
     ===============================
 
 
-|large|\ **Feature requests or bug reports?**\ |/large|
+**Feature requests or bug reports?**
 
 Please submit them as GitHub `Issues <https://github.com/bskinn/stdio-mgr/issues>`__.
 
+\(c) 2018 Brian Skinn
 
 
-.. |large| raw:: html
-
-    <span style="font-size: 110%">
-
-.. |/large| raw:: html
-
-    </span>
-
-
-.. |larger| raw:: html
-
-    <span style="font-size: 125%">
-
-.. |/larger| raw:: html
-
-    </span>
-
-
-.. |kbd| raw:: html
-
-    <kbd>
-
-.. |/kbd| raw:: html
-
-    </kbd>

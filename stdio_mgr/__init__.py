@@ -34,4 +34,4 @@ __all__ = ['stdio_mgr']
 from .stdio_mgr import stdio_mgr
 
 
-__version__ = '1.0rc1'
+__version__ = '1.0'
