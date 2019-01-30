@@ -32,7 +32,7 @@ from io import StringIO, TextIOBase
 import attr
 
 
-@attr.s(slots=True)
+@attr.s(slots=False)
 class TeeStdin(StringIO):
     """Class to tee contents to a side buffer on read.
 
