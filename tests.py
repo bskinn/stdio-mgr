@@ -50,7 +50,7 @@ def main():
     import sys
     import unittest as ut
 
-    import stdio_mgr.test
+    import tests
 
     # Retrieve the parser
     prs = get_parser()
@@ -72,7 +72,7 @@ def main():
 
     # Add commandline-indicated tests per-group
     # Expect-good tests
-    addsuiteif(stdio_mgr.test.stdio_mgr_base.suite_all(),
+    addsuiteif(tests.stdio_mgr_base.suite_all(),
                [AP.ALL])
 
     # Create the test runner and execute

@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from stdio_mgr import __version__
 
@@ -11,7 +11,8 @@ def readme():
 setup(
     name='stdio-mgr',
     version=__version__,
-    packages=['stdio_mgr'],
+    packages=find_packages("src"),
+    package_dir={"": "src"},
     provides=['stdio_mgr'],
     requires=['attrs (>=17.1)'],
     install_requires=['attrs>=17.1'],
