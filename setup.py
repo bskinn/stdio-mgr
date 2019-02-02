@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-from stdio_mgr import __version__
+from src.stdio_mgr import __version__
 
 
 def readme():
