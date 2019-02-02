@@ -17,7 +17,7 @@
 
 from __future__ import absolute_import
 
-__all__ = ['suite_all']
+__all__ = ["suite_all"]
 
 
 from .stdio_mgr_base import suite_all
