@@ -1,4 +1,4 @@
-attrs>=17,<18
+attrs>=17
 codecov
 coverage
 flake8==3.4.1
