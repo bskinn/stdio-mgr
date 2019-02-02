@@ -70,8 +70,7 @@ class TeeStdin(StringIO):
     from io import SEEK_SET, SEEK_END
 
     tee = attr.ib(validator=attr.validators.instance_of(TextIOBase))
-    init_text = attr.ib(default='',
-                        validator=attr.validators.instance_of(str))
+    init_text = attr.ib(default="", validator=attr.validators.instance_of(str))
 
     def __attrs_post_init__(self):
         """Call normal __init__ on superclass."""
@@ -136,7 +135,7 @@ class TeeStdin(StringIO):
 
 
 @contextmanager
-def stdio_mgr(in_str=''):
+def stdio_mgr(in_str=""):
     r"""Subsitute temporary text buffers for `stdio` in a managed context.
 
     Context manager.
@@ -198,5 +197,5 @@ def stdio_mgr(in_str=''):
     new_stderr.close()
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     print("Module not executable.")

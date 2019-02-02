@@ -29,9 +29,9 @@ interactions.
 from __future__ import absolute_import
 
 
-__all__ = ['stdio_mgr']
+__all__ = ["stdio_mgr"]
 
 from .stdio_mgr import stdio_mgr
 
 
-__version__ = '1.0.1'
+__version__ = "1.0.1"

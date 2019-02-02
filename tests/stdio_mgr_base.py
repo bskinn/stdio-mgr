@@ -28,11 +28,11 @@ class TestStdioMgrExpectGood(ut.TestCase):
         from stdio_mgr import stdio_mgr
 
         with stdio_mgr() as (i, o, e):
-            s = 'test str'
+            s = "test str"
             print(s)
 
             # 'print' automatically adds a newline
-            self.assertEqual(s + '\n', o.getvalue())
+            self.assertEqual(s + "\n", o.getvalue())
 
     def test_CaptureStderr(self):
         """Confirm stderr capture."""
@@ -40,17 +40,17 @@ class TestStdioMgrExpectGood(ut.TestCase):
         from stdio_mgr import stdio_mgr
 
         with stdio_mgr() as (i, o, e):
-            w = 'This is a warning'
+            w = "This is a warning"
             warnings.warn(w)
 
             # Warning text comes at the end of a line; newline gets added
-            self.assertIn(w + '\n', e.getvalue())
+            self.assertIn(w + "\n", e.getvalue())
 
     def test_DefaultStdin(self):
         """Confirm stdin default-populate."""
         from stdio_mgr import stdio_mgr
 
-        in_str = 'This is a test string.\n'
+        in_str = "This is a test string.\n"
 
         with stdio_mgr(in_str) as (i, o, e):
             self.assertEqual(in_str, i.getvalue())
@@ -68,14 +68,14 @@ class TestStdioMgrExpectGood(ut.TestCase):
         """Confirm stdin populate within context."""
         from stdio_mgr import stdio_mgr
 
-        str1 = 'This is a test string.'
-        str2 = 'This is another test string.\n'
+        str1 = "This is a test string."
+        str2 = "This is another test string.\n"
 
         with stdio_mgr() as (i, o, e):
             # Preload str1 to stdout, and check. As above, 'print'
             # appends a newline
             print(str1)
-            self.assertEqual(str1 + '\n', o.getvalue())
+            self.assertEqual(str1 + "\n", o.getvalue())
 
             # Use custom method .append to add the contents
             # without moving the seek position; check stdin contents.
@@ -90,7 +90,7 @@ class TestStdioMgrExpectGood(ut.TestCase):
             # stdout should have both strings. The newline of str2 is
             # *retained* here, because str2 was teed from stdin upon
             # the read of stdin by the above 'input' call.
-            self.assertEqual(str1 + '\n' + str2, o.getvalue())
+            self.assertEqual(str1 + "\n" + str2, o.getvalue())
 
             # 'input' should just have put str2 to out_str, *without*
             # the trailing newline, per normal 'input' behavior.
@@ -100,24 +100,28 @@ class TestStdioMgrExpectGood(ut.TestCase):
 def setup_stdiomgr_import(dt_obj):
     """Import stdio_mgr into the test globals."""
     from stdio_mgr import stdio_mgr
-    dt_obj.globs.update({'stdio_mgr': stdio_mgr})
+
+    dt_obj.globs.update({"stdio_mgr": stdio_mgr})
 
 
-TestStdioMgrReadme = dt.DocFileSuite(osp.abspath('README.rst'),
-                                     module_relative=False,
-                                     setUp=setup_stdiomgr_import,
-                                     optionflags=dt.ELLIPSIS)
+TestStdioMgrReadme = dt.DocFileSuite(
+    osp.abspath("README.rst"),
+    module_relative=False,
+    setUp=setup_stdiomgr_import,
+    optionflags=dt.ELLIPSIS,
+)
 
 
 def suite_all():
     """Create and return the test suite for all tests."""
     s = ut.TestSuite()
     tl = ut.TestLoader()
-    s.addTests([tl.loadTestsFromTestCase(TestStdioMgrExpectGood),
-                TestStdioMgrReadme])
+    s.addTests(
+        [tl.loadTestsFromTestCase(TestStdioMgrExpectGood), TestStdioMgrReadme]
+    )
 
     return s
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Module not executable.")

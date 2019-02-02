@@ -7,8 +7,11 @@ python:
  - 3.4
  - 3.5
  - 3.6
+ - 3.7-dev
 script:
+ - python --version
+ - pip list
  - coverage run tests.py -a
- - flake8 stdio_mgr
- - echo $TRAVIS_PYTHON_VERSION | grep -e '^3\.5' && codecov || echo "No codecov."
-
+ - do_rest=$( echo $TRAVIS_PYTHON_VERSION | grep -e '^3\.6' | wc -l )
+ - if [ $do_rest -gt 0 ]; then codecov; else echo "No codecov."; fi
+ - if [ $do_rest -gt 0 ]; then pip install black; black --check setup.py tests.py src/stdio_mgr tests -l 79; else echo "No black."; fi
