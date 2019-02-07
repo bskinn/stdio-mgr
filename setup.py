@@ -1,6 +1,10 @@
+import os, sys
 from setuptools import setup, find_packages
 
-from src.stdio_mgr import __version__
+
+sys.path.append(os.path.abspath('src'))
+from stdio_mgr import __version__
+sys.path.pop()
 
 
 def readme():
