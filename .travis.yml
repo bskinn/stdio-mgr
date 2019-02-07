@@ -1,5 +1,5 @@
 install:
- - pip install -r requirements-travis.txt
+ - pip install -U --force-reinstall -r requirements-travis.txt
  - pip install -e .
 language: python
 python:
