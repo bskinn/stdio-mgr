@@ -2,8 +2,9 @@ import os, sys
 from setuptools import setup, find_packages
 
 
-sys.path.append(os.path.abspath('src'))
+sys.path.append(os.path.abspath("src"))
 from stdio_mgr import __version__
+
 sys.path.pop()
 
 
@@ -32,11 +33,13 @@ setup(
         "Natural Language :: English",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Testing",
         "Development Status :: 5 - Production/Stable",
