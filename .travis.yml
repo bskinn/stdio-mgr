@@ -1,6 +1,8 @@
 install:
  - pip install -U --force-reinstall -r requirements-travis.txt
  - pip install -e .
+ - is_py33=$( echo $TRAVIS_PYTHON_VERSION | grep -e '^3\.3' | wc -l )
+ - if [ $is_py33 -gt 0 ]; then pip install --force-reinstall 'virtualenv==16.0.0'; fi
 language: python
 python:
  - 3.3
