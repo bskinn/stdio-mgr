@@ -16,4 +16,4 @@ script:
  - pytest --cov=src/stdio_mgr
  - do_rest=$( echo $TRAVIS_PYTHON_VERSION | grep -e '^3\.6' | wc -l )
  - if [ $do_rest -gt 0 ]; then codecov; else echo "No codecov."; fi
- - if [ $do_rest -gt 0 ]; then pip install black; black --check setup.py tests.py src/stdio_mgr tests -l 79; else echo "No black."; fi
+ - if [ $do_rest -gt 0 ]; then pip install black; black --check .; else echo "No black."; fi
