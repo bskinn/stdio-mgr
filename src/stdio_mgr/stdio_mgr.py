@@ -45,7 +45,7 @@ class TeeStdin(StringIO):
     To emphasize: teeing occurs on content *read*, **not write**.
 
     This class also provides the method
-    :meth:`TeeStdin..append`, which is not available
+    :meth:`TeeStdin.append`, which is not available
     for the base :cls:`~io.StringIO` type.
     This method adds new content to the end of the
     stream while leaving the read position unchanged.

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["wheel", "setuptools", "attrs>=17.1"]
+
+[tool.black]
+line-length = 79
+include = '''
+(
+    ^/tests/
+  | ^/src/stdio_mgr/
+  | ^/setup[.]py
+  | ^/conftest[.]py
+)
+'''
+exclude = '''
+(
+    __pycache__
+)
+'''
