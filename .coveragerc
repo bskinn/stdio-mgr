@@ -2,10 +2,10 @@
 omit =
     # Don't do coverage on test code
     tests/*
-    tests.py
+    conftest.py
 
     # Don't cover code in the env (Termux only?)
-    env/*
+    env*/*
 
 [report]
 exclude_lines =
