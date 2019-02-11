@@ -11,7 +11,7 @@ interactions.
     24 Mar 2018
 
 **Copyright**
-    \(c) Brian Skinn 2018
+    \(c) Brian Skinn 2018-2019
 
 **Source Repository**
     http://www.github.com/bskinn/stdio-mgr
@@ -32,7 +32,7 @@ from io import StringIO, TextIOBase
 import attr
 
 
-@attr.s(slots=True)
+@attr.s(slots=False)
 class TeeStdin(StringIO):
     """Class to tee contents to a side buffer on read.
 
@@ -45,7 +45,7 @@ class TeeStdin(StringIO):
     To emphasize: teeing occurs on content *read*, **not write**.
 
     This class also provides the method
-    :meth:`TeeStdin..append`, which is not available
+    :meth:`TeeStdin.append`, which is not available
     for the base :cls:`~io.StringIO` type.
     This method adds new content to the end of the
     stream while leaving the read position unchanged.
@@ -70,8 +70,7 @@ class TeeStdin(StringIO):
     from io import SEEK_SET, SEEK_END
 
     tee = attr.ib(validator=attr.validators.instance_of(TextIOBase))
-    init_text = attr.ib(default='',
-                        validator=attr.validators.instance_of(str))
+    init_text = attr.ib(default="", validator=attr.validators.instance_of(str))
 
     def __attrs_post_init__(self):
         """Call normal __init__ on superclass."""
@@ -136,7 +135,7 @@ class TeeStdin(StringIO):
 
 
 @contextmanager
-def stdio_mgr(in_str=''):
+def stdio_mgr(in_str=""):
     r"""Subsitute temporary text buffers for `stdio` in a managed context.
 
     Context manager.
@@ -198,5 +197,5 @@ def stdio_mgr(in_str=''):
     new_stderr.close()
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     print("Module not executable.")

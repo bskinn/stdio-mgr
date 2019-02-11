@@ -1,4 +1,4 @@
-r"""``stdio_mgr`` *package definition module*.
+r"""*pytest configuration for the* ``stdio_mgr`` *test suite*.
 
 ``stdio_mgr`` provides a context manager for convenient
 mocking and/or wrapping of ``stdin``/``stdout``/``stderr``
@@ -8,10 +8,10 @@ interactions.
     Brian Skinn (bskinn@alum.mit.edu)
 
 **File Created**
-    24 Mar 2018
+    6 Feb 2019
 
 **Copyright**
-    \(c) Brian Skinn 2018
+    \(c) Brian Skinn 2018-2019
 
 **Source Repository**
     http://www.github.com/bskinn/stdio-mgr
@@ -26,12 +26,11 @@ interactions.
 
 """
 
-from __future__ import absolute_import
+import pytest
+
+from stdio_mgr import stdio_mgr
 
 
-__all__ = ['stdio_mgr']
-
-from .stdio_mgr import stdio_mgr
-
-
-__version__ = '1.0'
+@pytest.fixture(autouse=True)
+def add_stdio_mgr(doctest_namespace):
+    doctest_namespace["stdio_mgr"] = stdio_mgr

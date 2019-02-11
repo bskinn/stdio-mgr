@@ -1,7 +1,7 @@
-stdio Manager
-=============
+stdio Manager: Context manager for mocking/wrapping ``stdin``/``stdout``/``stderr``
+===================================================================================
 
-*Python context manager for mocking/wrapping* ``stdin``/``stdout``/``stderr``
+**Current Development Version:**
 
 .. image:: https://travis-ci.org/bskinn/stdio-mgr.svg?branch=dev
     :target: https://travis-ci.org/bskinn/stdio-mgr
@@ -9,13 +9,22 @@ stdio Manager
 .. image:: https://codecov.io/gh/bskinn/stdio-mgr/branch/dev/graph/badge.svg
     :target: https://codecov.io/gh/bskinn/stdio-mgr
 
+**Most Recent Stable Release:**
+
 .. image:: https://img.shields.io/pypi/v/stdio_mgr.svg
     :target: https://pypi.org/project/stdio-mgr
 
 .. image:: https://img.shields.io/pypi/pyversions/stdio-mgr.svg
 
+**Info:**
+
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
     :target: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/ambv/black
+
+----
 
 **Have a CLI Python application?**
 
@@ -75,7 +84,7 @@ upon exiting the managed context.
     ...     warnings.warn("'foo' has no 'bar'")
     ...     err_cap = err_.getvalue()
     >>> err_cap
-    "...README.rst:2: UserWarning: 'foo' has no 'bar'\n  =============\n"
+    "...UserWarning: 'foo' has no 'bar'\n..."
 
 
 **Mock** ``stdin``\ **:**
@@ -164,11 +173,17 @@ wrap functions that directly output to ``stdout``/``stderr``. A ``stdout`` examp
     | Lorem ipsum dolor sit amet. |
     ===============================
 
+----
 
-**Feature requests or bug reports?**
+Available on `PyPI <https://pypi.python.org/pypi/stdio-mgr>`__
+(``pip install stdio-mgr``).
 
-Please submit them as GitHub `Issues <https://github.com/bskinn/stdio-mgr/issues>`__.
+Source on `GitHub <https://github.com/bskinn/stdio-mgr>`__.  Bug reports
+and feature requests are welcomed at the
+`Issues <https://github.com/bskinn/stdio-mgr/issues>`__ page there.
 
-\(c) 2018 Brian Skinn
+Copyright \(c) 2018-2019 Brian Skinn
 
+License: The MIT License. See `LICENSE.txt <https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt>`__
+for full license terms.
 

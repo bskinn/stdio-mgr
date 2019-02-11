@@ -1,8 +1,12 @@
-attrs>=17,<18
-coverage
+attrs>=17
+black
 flake8==3.4.1
 flake8-docstrings==1.1.0
 ipython
+pytest
+pytest-cov
 restview
+tox
 twine
 wget
+-e .
