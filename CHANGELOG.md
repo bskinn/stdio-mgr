@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### [Unreleased]
 
+...
+
+### [1.0.1] - 2019-02-11
+
+#### Changed
+
+ * `TeeStdin` is now a `slots=False` attrs class, to avoid errors arising
+   from some manner of change in the vicinity of attrs v18.1/v18.2.
+
 ### [1.0.0] - 2018-04-01
 
 #### Features

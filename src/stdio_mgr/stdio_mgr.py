@@ -11,7 +11,7 @@ interactions.
     24 Mar 2018
 
 **Copyright**
-    \(c) Brian Skinn 2018
+    \(c) Brian Skinn 2018-2019
 
 **Source Repository**
     http://www.github.com/bskinn/stdio-mgr
