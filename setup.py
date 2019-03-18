@@ -1,11 +1,9 @@
-import os, sys
+import os.path as osp
 from setuptools import setup, find_packages
 
 
-sys.path.append(os.path.abspath("src"))
-from stdio_mgr import __version__
-
-sys.path.pop()
+with open(osp.join(*["src", "stdio_mgr", "version.py"])) as f:
+    exec(f.read())
 
 
 def readme():
@@ -35,7 +33,6 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
