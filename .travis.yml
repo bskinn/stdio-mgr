@@ -7,10 +7,11 @@ python:
  - 3.5
  - 3.6
  - 3.7
+ - 3.8-dev
 script:
  - python --version
  - pip list
- - pytest --cov=src
- - do_rest=$( echo $TRAVIS_PYTHON_VERSION | grep -e '^3\.6' | wc -l )
- - if [ $do_rest -gt 0 ]; then codecov; else echo "No codecov."; fi
- - if [ $do_rest -gt 0 ]; then pip install black; black --check .; else echo "No black."; fi
+ - minor_version=$( echo $TRAVIS_PYTHON_VERSION | sed -E 's/^[^3]*3[.]([0-9]+).*$/\1/' )
+ - if [ $minor_version -eq 8 ]; then pytest -k _base; else pytest --cov=src; fi
+ - if [ $minor_version -eq 6 ]; then codecov; else echo "No codecov."; fi
+ - if [ $minor_version -eq 6 ]; then pip install black; black --check .; else echo "No black."; fi
