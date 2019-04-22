@@ -26,6 +26,7 @@ interactions.
 
 """
 
+import sys
 from contextlib import contextmanager
 from io import StringIO, TextIOBase
 
@@ -172,8 +173,6 @@ def stdio_mgr(in_str=""):
         initially empty.
 
     """
-    import sys
-
     old_stdin = sys.stdin
     old_stdout = sys.stdout
     old_stderr = sys.stderr
@@ -195,7 +194,3 @@ def stdio_mgr(in_str=""):
     new_stdin.close()
     new_stdout.close()
     new_stderr.close()
-
-
-if __name__ == "__main__":  # pragma: no cover
-    print("Module not executable.")

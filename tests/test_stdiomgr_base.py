@@ -27,10 +27,14 @@ interactions.
 """
 
 
-def test_CaptureStdout():
-    """Confirm stdout capture."""
-    from stdio_mgr import stdio_mgr
+import warnings
 
+
+from stdio_mgr import stdio_mgr
+
+
+def test_capture_stdout():
+    """Confirm stdout capture."""
     with stdio_mgr() as (i, o, e):
         s = "test str"
         print(s)
@@ -39,23 +43,21 @@ def test_CaptureStdout():
         assert s + "\n" == o.getvalue()
 
 
-def test_CaptureStderr():
+def test_capture_stderr():
     """Confirm stderr capture."""
-    import warnings
-    from stdio_mgr import stdio_mgr
-
     with stdio_mgr() as (i, o, e):
         w = "This is a warning"
-        warnings.warn(w)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("always")
+            warnings.warn(w)
 
         # Warning text comes at the end of a line; newline gets added
         assert w + "\n" in e.getvalue()
 
 
-def test_DefaultStdin():
+def test_default_stdin():
     """Confirm stdin default-populate."""
-    from stdio_mgr import stdio_mgr
-
     in_str = "This is a test string.\n"
 
     with stdio_mgr(in_str) as (i, o, e):
@@ -71,10 +73,8 @@ def test_DefaultStdin():
         assert in_str[:-1] == out_str
 
 
-def test_ManagedStdin():
+def test_managed_stdin():
     """Confirm stdin populate within context."""
-    from stdio_mgr import stdio_mgr
-
     str1 = "This is a test string."
     str2 = "This is another test string.\n"
 
@@ -104,5 +104,11 @@ def test_ManagedStdin():
         assert str2[:-1] == out_str
 
 
-if __name__ == "__main__":
-    print("Module not executable.")
+def test_repeated_use():
+    """Confirm repeated stdio_mgr use works correctly."""
+    for _ in range(4):
+        # Tests both stdin and stdout
+        test_default_stdin()
+
+        # Tests stderr
+        test_capture_stderr()

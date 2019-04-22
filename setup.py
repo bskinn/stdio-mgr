@@ -19,7 +19,7 @@ setup(
     provides=["stdio_mgr"],
     requires=["attrs (>=17.1)"],
     install_requires=["attrs>=17.1"],
-    python_requires=">=3",
+    python_requires=">=3.4",
     url="https://www.github.com/bskinn/stdio-mgr",
     license="MIT License",
     author="Brian Skinn",
