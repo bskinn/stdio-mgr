@@ -105,3 +105,6 @@ ENV/
 # Temp/backup editor files
 *.bak
 
+# mutmut
+.mutmut-cache
+
