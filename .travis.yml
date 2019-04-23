@@ -12,6 +12,6 @@ script:
  - python --version
  - pip list
  - minor_version=$( echo $TRAVIS_PYTHON_VERSION | sed -E 's/^[^3]*3[.]([0-9]+).*$/\1/' )
- - if [ $minor_version -eq 8 ]; then pytest -k _base; else pytest --cov=src; fi
+ - pytest --cov=src
  - if [ $minor_version -eq 6 ]; then codecov; else echo "No codecov."; fi
  - if [ $minor_version -eq 6 ]; then pip install black; black --check .; else echo "No black."; fi
