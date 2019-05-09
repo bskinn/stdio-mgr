@@ -3,10 +3,10 @@ stdio Manager: Context manager for mocking/wrapping ``stdin``/``stdout``/``stder
 
 **Current Development Version:**
 
-.. image:: https://travis-ci.org/bskinn/stdio-mgr.svg?branch=dev
+.. image:: https://travis-ci.org/bskinn/stdio-mgr.svg?branch=master
     :target: https://travis-ci.org/bskinn/stdio-mgr
 
-.. image:: https://codecov.io/gh/bskinn/stdio-mgr/branch/dev/graph/badge.svg
+.. image:: https://codecov.io/gh/bskinn/stdio-mgr/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/bskinn/stdio-mgr
 
 **Most Recent Stable Release:**
@@ -19,7 +19,7 @@ stdio Manager: Context manager for mocking/wrapping ``stdin``/``stdout``/``stder
 **Info:**
 
 .. image:: https://img.shields.io/github/license/mashape/apistatus.svg
-    :target: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
+    :target: https://github.com/bskinn/stdio-mgr/blob/stable/LICENSE.txt
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
@@ -184,6 +184,6 @@ and feature requests are welcomed at the
 
 Copyright \(c) 2018-2019 Brian Skinn
 
-License: The MIT License. See `LICENSE.txt <https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt>`__
+License: The MIT License. See `LICENSE.txt <https://github.com/bskinn/stdio-mgr/blob/stable/LICENSE.txt>`__
 for full license terms.
 
