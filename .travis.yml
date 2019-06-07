@@ -1,7 +1,6 @@
 dist: xenial
 install:
  - pip install -U --force-reinstall -r requirements-travis.txt
- - python setup.py develop
 language: python
 python:
  - 3.4

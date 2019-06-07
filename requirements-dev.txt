@@ -8,3 +8,4 @@ restview
 tox
 twine
 wget
+-e .
