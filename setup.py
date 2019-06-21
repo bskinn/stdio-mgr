@@ -2,7 +2,7 @@ import os.path as osp
 from setuptools import setup, find_packages
 
 
-with open(osp.join(*["src", "stdio_mgr", "version.py"])) as f:
+with open(osp.join("src", "stdio_mgr", "version.py")) as f:
     exec(f.read())
 
 
