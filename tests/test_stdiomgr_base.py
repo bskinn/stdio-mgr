@@ -112,3 +112,10 @@ def test_repeated_use():
 
         # Tests stderr
         test_capture_stderr()
+
+
+def test_stdin_detached():
+    """Confirm stdin's buffer can be detached within the context."""
+    with stdio_mgr() as (i, o, e):
+        f = i.detach()
+    assert not f.closed
