@@ -28,26 +28,32 @@ interactions.
 
 import sys
 from contextlib import contextmanager
-from io import StringIO, TextIOBase
+from io import BufferedReader, BytesIO, StringIO, TextIOBase, TextIOWrapper
 
 import attr
 
 
 @attr.s(slots=False)
-class TeeStdin(StringIO):
+class TeeStdin(TextIOWrapper):
     """Class to tee contents to a side buffer on read.
 
-    Subclass of :cls:`~io.StringIO` that overrides
-    :meth:`~io.StringIO.read` and :meth:`~io.StringIO.readline`
+    Subclass of :cls:`~io.TextIOWrapper` that overrides
+    :meth:`~io.TextIOWrapper.read` and :meth:`~io.TextIOWrapper.readline`
     to tee all content *read* from the stream to `tee`. The
     canonical use-case is with :func:`stdio_mgr`,
     where `tee` is the mocked stream for `stdin`.
 
     To emphasize: teeing occurs on content *read*, **not write**.
 
+    As a subclass of :cls:`~io.TextIOWrapper`, it is not thread-safe.
+
+    This class provides :meth:`~TeeStdin.getvalue` which emulates the
+    behavior of :meth:`~io.StringIO.getvalue`, decoding the buffer
+    using the :attr:`~io.TextIOWrapper.encoding`.
+
     This class also provides the method
     :meth:`TeeStdin.append`, which is not available
-    for the base :cls:`~io.StringIO` type.
+    for the base :cls:`~io.TextIOWrapper` type.
     This method adds new content to the end of the
     stream while leaving the read position unchanged.
 
@@ -62,25 +68,32 @@ class TeeStdin(StringIO):
 
         |str| *(optional)* --
         Text to use as the initial contents of the
-        underlying :cls:`~io.StringIO`. `init_text` is
-        passed directly to the :cls:~io.StringIO`
+        underlying :cls:`~io.TextIOWrapper`. `init_text` is
+        passed directly to the :cls:~io.TextIOWrapper`
         instantiation call. Default is an empty |str|.
 
+    `encoding`
+
+        |str| *(optional)* --
+        Encoding for the underlying :cls:`~io.TextIOWrapper`.
+        Default is "utf-8".
     """
 
     from io import SEEK_SET, SEEK_END
 
     tee = attr.ib(validator=attr.validators.instance_of(TextIOBase))
     init_text = attr.ib(default="", validator=attr.validators.instance_of(str))
+    _encoding = attr.ib(default="utf-8", validator=attr.validators.instance_of(str))
 
     def __attrs_post_init__(self):
         """Call normal __init__ on superclass."""
-        super().__init__(self.init_text)
+        self._buf = BytesIO(self.init_text.encode(self._encoding))
+        super().__init__(BufferedReader(self._buf), encoding=self._encoding)
 
     def read(self, size=None):  # pragma: no cover
         """Tee text to side buffer when read.
 
-        Overrides :meth:`io.StringIO.read <StringIO.read>`
+        Overrides :meth:`io.TextIOWrapper.read <TextIOWrapper.read>`
         to implement the teeing.
 
         Parameters
@@ -99,7 +112,7 @@ class TeeStdin(StringIO):
     def readline(self, size=-1):
         """Tee text to side buffer when read.
 
-        Overrides :meth:`io.StringIO.readline <StringIO.readline>`
+        Overrides :meth:`io.TextIOWrapper.readline <TextIOWrapper.readline>`
         to implement the teeing.
 
         Parameters
@@ -130,9 +143,13 @@ class TeeStdin(StringIO):
         """
         pos = self.tell()
         self.seek(0, self.SEEK_END)
-        retval = self.write(text)
+        retval = self._buf.write(text.encode(self.encoding))
         self.seek(pos, self.SEEK_SET)
         return retval
+
+    def getvalue(self):
+        """Obtain pending buffer of text for stdin."""
+        return self.buffer.peek().decode(self.encoding)
 
 
 @contextmanager
@@ -191,6 +208,14 @@ def stdio_mgr(in_str=""):
     sys.stdout = old_stdout
     sys.stderr = old_stderr
 
-    new_stdin.close()
+    try:
+        closed = new_stdin.closed
+    except ValueError:
+        # ValueError occurs when the underlying buffer is detached
+        pass
+    else:
+        if not closed:
+            new_stdin.close()
+
     new_stdout.close()
     new_stderr.close()
