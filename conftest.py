@@ -33,4 +33,5 @@ from stdio_mgr import stdio_mgr
 
 @pytest.fixture(autouse=True)
 def add_stdio_mgr(doctest_namespace):
+    """Add stdio_mgr to doctest namespace."""
     doctest_namespace["stdio_mgr"] = stdio_mgr
