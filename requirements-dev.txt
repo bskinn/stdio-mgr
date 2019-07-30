@@ -1,7 +1,5 @@
 attrs>=17
 black
-flake8==3.4.1
-flake8-docstrings==1.1.0
 pytest
 pytest-cov
 restview
@@ -9,3 +7,4 @@ tox
 twine
 wget
 -e .
+-r requirements-flake8.txt

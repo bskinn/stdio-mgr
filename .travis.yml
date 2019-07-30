@@ -1,6 +1,10 @@
 dist: xenial
 install:
+ - PYTHON_MAJOR=$( python -c 'import sys; print(sys.version_info.major)' )
+ - PYTHON_MINOR=$( python -c 'import sys; print(sys.version_info.minor)' )
+ - pip install -U pip setuptools
  - pip install -U --force-reinstall -r requirements-travis.txt
+ - if (( ( $PYTHON_MAJOR > 3 ) || ( $PYTHON_MAJOR == 3 && $PYTHON_MINOR >= 6 ) )); then pip install -r requirements-flake8.txt; fi
 language: python
 python:
  - 3.4
@@ -11,7 +15,6 @@ python:
 script:
  - python --version
  - pip list
- - minor_version=$( echo $TRAVIS_PYTHON_VERSION | sed -E 's/^[^3]*3[.]([0-9]+).*$/\1/' )
  - pytest --cov=src
- - if [ $minor_version -eq 6 ]; then codecov; else echo "No codecov."; fi
- - if [ $minor_version -eq 6 ]; then pip install black; black --check .; else echo "No black."; fi
+ - if (( $PYTHON_MAJOR == 3 && $PYTHON_MINOR == 7 )); then tox -e flake8; else echo "No flake8."; fi
+ - if (( $PYTHON_MAJOR == 3 && $PYTHON_MINOR == 7 )); then codecov; else echo "No codecov."; fi
