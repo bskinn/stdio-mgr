@@ -29,6 +29,7 @@ interactions.
 
 import warnings
 
+import pytest
 
 from stdio_mgr import stdio_mgr
 
@@ -114,8 +115,29 @@ def test_repeated_use():
         test_capture_stderr()
 
 
+def test_stdin_closed():
+    """Confirm stdin's buffer can be closed within the context."""
+    with stdio_mgr() as (i, o, e):
+        print("test str")
+
+        i.close()
+
+        with pytest.raises(ValueError) as err:
+            i.getvalue()
+
+        assert str(err.value) == "I/O operation on closed file."
+
+        assert "test str\n" == o.getvalue()
+
+
 def test_stdin_detached():
     """Confirm stdin's buffer can be detached within the context."""
     with stdio_mgr() as (i, o, e):
         f = i.detach()
+
+        with pytest.raises(ValueError) as err:
+            i.getvalue()
+
+        assert str(err.value) == "underlying buffer has been detached"
+
     assert not f.closed

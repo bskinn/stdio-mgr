@@ -149,6 +149,8 @@ class TeeStdin(TextIOWrapper):
 
     def getvalue(self):
         """Obtain pending buffer of text for stdin."""
+        if self.closed:  # Triggers a ValueError if detached
+            self.read()  # Triggers a ValueError
         return self.buffer.peek().decode(self.encoding)
 
 
