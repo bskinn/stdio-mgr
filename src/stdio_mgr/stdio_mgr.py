@@ -27,10 +27,57 @@ interactions.
 """
 
 import sys
-from contextlib import contextmanager
-from io import BufferedReader, BytesIO, StringIO, TextIOBase, TextIOWrapper
+from contextlib import contextmanager, ExitStack, suppress
+from io import BufferedRandom, BufferedReader, BytesIO, TextIOBase, TextIOWrapper
 
 import attr
+
+
+class _PersistedBytesIO(BytesIO):
+    """Class to persist the stream after close.
+
+    A copy of the bytes value is available at :attr:`_closed_buf` after
+    the :meth:`~BytesIO.close`.
+    """
+
+    def close(self):
+        self._closed_buf = self.getvalue()
+        super().close()
+
+
+class RandomTextIO(TextIOWrapper):
+    """Class to capture writes to a buffer even when detached.
+
+    Subclass of :cls:`~io.TextIOWrapper` that utilises an internal
+    buffer defaulting to utf-8 encoding.
+
+    As a subclass of :cls:`~io.TextIOWrapper`, it is not thread-safe.
+
+    All writes are immediately flushed to the buffer.
+
+    This class provides :meth:`~RandomTextIO.getvalue` which emulates the
+    behavior of :meth:`~io.StringIO.getvalue`, decoding the buffer
+    using the :attr:`~io.TextIOWrapper.encoding`.  The value is available
+    even if the stream is detached or closed.
+    """
+
+    def __init__(self):
+        """Initialise buffer with utf-8 encoding."""
+        self._stream = _PersistedBytesIO()
+        self._buf = BufferedRandom(self._stream)
+        super().__init__(self._buf, encoding="utf-8")
+
+    def write(self, *args, **kwargs):
+        """Flush after each write."""
+        super().write(*args, **kwargs)
+        self.flush()
+
+    def getvalue(self):
+        """Obtain buffer of text sent to the stream."""
+        if self._stream.closed:
+            return self._stream._closed_buf.decode(self.encoding)
+        else:
+            return self._stream.getvalue().decode(self.encoding)
 
 
 @attr.s(slots=False)
@@ -154,13 +201,44 @@ class TeeStdin(TextIOWrapper):
         return self.buffer.peek().decode(self.encoding)
 
 
+class _SafeCloseIOBase(TextIOBase):
+    """Class to ignore ValueError when exiting the context.
+
+    Subclass of :cls:`~io.TextIOBase` that disregards ValueError, which can
+    occur if the file has already been closed, when exiting the context.
+    """
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Suppress ValueError while exiting context.
+
+        :exc:`ValueError` may occur when the underlying
+        buffer is detached or the file was closed.
+        """
+        with suppress(ValueError):
+            super().__exit__(exc_type, exc_value, traceback)
+
+
+class SafeCloseRandomTextIO(_SafeCloseIOBase, RandomTextIO):
+    """Class to capture writes to a buffer even when detached, and safely close.
+
+    Subclass of :cls:`~_SafeCloseIOBase` and :cls:`~RandomTextIO`.
+    """
+
+
+class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
+    """Class to tee contents to a side buffer on read, and safely close.
+
+    Subclass of :cls:`~_SafeCloseIOBase` and :cls:`~TeeStdin`.
+    """
+
+
 @contextmanager
-def stdio_mgr(in_str=""):
+def stdio_mgr(in_str="", close=True):
     r"""Subsitute temporary text buffers for `stdio` in a managed context.
 
     Context manager.
 
-    Substitutes empty :cls:`~io.StringIO`\ s for
+    Substitutes empty :cls:`~io.RandomTextIO`\ s for
     :cls:`sys.stdout` and :cls:`sys.stderr`,
     and a :cls:`TeeStdin` for :cls:`sys.stdin` within the managed context.
 
@@ -183,22 +261,32 @@ def stdio_mgr(in_str=""):
 
     out_
 
-        :cls:`~io.StringIO` -- Temporary stream for `stdout`,
+        :cls:`~io.RandomTextIO` -- Temporary stream for `stdout`,
         initially empty.
 
     err_
 
-        :cls:`~io.StringIO` -- Temporary stream for `stderr`,
+        :cls:`~io.RandomTextIO` -- Temporary stream for `stderr`,
         initially empty.
 
     """
+    if close:
+        out_cls = SafeCloseRandomTextIO
+        in_cls = SafeCloseTeeStdin
+    else:
+        out_cls = RandomTextIO
+        in_cls = TeeStdin
+
     old_stdin = sys.stdin
     old_stdout = sys.stdout
     old_stderr = sys.stderr
 
-    new_stdout = StringIO()
-    new_stderr = StringIO()
-    new_stdin = TeeStdin(new_stdout, in_str)
+    with ExitStack() as stack:
+        new_stdout = stack.enter_context(out_cls())
+        new_stderr = stack.enter_context(out_cls())
+        new_stdin = stack.enter_context(in_cls(new_stdout, in_str))
+
+        close_files = stack.pop_all().close
 
     sys.stdin = new_stdin
     sys.stdout = new_stdout
@@ -210,14 +298,5 @@ def stdio_mgr(in_str=""):
     sys.stdout = old_stdout
     sys.stderr = old_stderr
 
-    try:
-        closed = new_stdin.closed
-    except ValueError:
-        # ValueError occurs when the underlying buffer is detached
-        pass
-    else:
-        if not closed:
-            new_stdin.close()
-
-    new_stdout.close()
-    new_stderr.close()
+    if close:
+        close_files()
