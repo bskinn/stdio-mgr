@@ -292,11 +292,12 @@ def stdio_mgr(in_str="", close=True):
     sys.stdout = new_stdout
     sys.stderr = new_stderr
 
-    yield new_stdin, new_stdout, new_stderr
+    try:
+        yield new_stdin, new_stdout, new_stderr
+    finally:
+        sys.stdin = old_stdin
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr
 
-    sys.stdin = old_stdin
-    sys.stdout = old_stdout
-    sys.stderr = old_stderr
-
-    if close:
-        close_files()
+        if close:
+            close_files()
