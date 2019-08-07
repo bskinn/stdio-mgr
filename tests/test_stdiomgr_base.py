@@ -27,6 +27,7 @@ interactions.
 """
 
 import io
+import sys
 import warnings
 
 import pytest
@@ -113,6 +114,22 @@ def test_repeated_use():
 
         # Tests stderr
         test_capture_stderr()
+
+
+def test_noop():
+    """Confirm state is restored after context."""
+    real_sys_stdio = (sys.stdin, sys.stdout, sys.stderr)
+    stdio_mgr()
+    assert (sys.stdin, sys.stdout, sys.stderr) == real_sys_stdio
+
+
+def test_exception():
+    """Confirm state is restored after an exception during context."""
+    real_sys_stdio = (sys.stdin, sys.stdout, sys.stderr)
+    with pytest.raises(ZeroDivisionError):
+        with stdio_mgr() as (i, o, e):
+            1 / 0
+    assert (sys.stdin, sys.stdout, sys.stderr) == real_sys_stdio
 
 
 def test_manual_close():
