@@ -26,4 +26,4 @@ interactions.
 
 """
 
-__version__ = "1.0.2.dev1"  # pragma: no mutate
+__version__ = "2.0.dev1"  # pragma: no mutate
