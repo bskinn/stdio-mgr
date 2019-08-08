@@ -6,18 +6,21 @@ pr:
     include:
     - master
 
-#variables:
-#  pythons: ['3.4', '3.5', '3.6', '3.7']
-#  images: [linux, windows, macOs]
-
 
 jobs:
-- ${{ each pyver in ['3.4', '3.5', '3.6', '3.7'] }}:
-  - job: $(pyver)
-    displayName: Test $(pyver)
-    python.version: $(pyver)
-    pool:
-      vmImage: 'ubuntu-latest'
+- template: azure-job.yml
+  parameters:
+    jobs:
+      py34: null
+      py35: null
+      py36: null
+      py37: null
+
+#    - job: $(pyver)
+#    displayName: Test $(pyver)
+#    python.version: $(pyver)
+#    pool:
+#      vmImage: 'ubuntu-latest'
 
 #    strategy:
 #      matrix:
@@ -42,7 +45,7 @@ jobs:
 #          python.version: '3.7'
 #          tox.env: docs
 
-    steps:
+#    steps:
 #      - task: UsePythonVersion@0
 #        displayName: Get Python for Python tools.
 #        inputs:
@@ -53,15 +56,15 @@ jobs:
 #      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade pytest
 #        displayName: Install Python-based tools.
 
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '$(python.version)'
-          architecture: 'x64'
-        displayName: Use cached Python $(python.version) for tests.
+#      - task: UsePythonVersion@0
+#        inputs:
+#          versionSpec: '$(python.version)'
+#          architecture: 'x64'
+#        displayName: Use cached Python $(python.version) for tests.
 
-      - script: pip install -r requirements-travis.txt
-        displayName: Install CI requirements
+#      - script: pip install -r requirements-travis.txt
+#        displayName: Install CI requirements
 
 #      - script: $(pyTools.pythonLocation)/bin/tox -e $(tox.env)
-      - script: pytest -v
-        displayName: run pytest ($(python.version))
+#      - script: pytest -v
+#        displayName: run pytest ($(python.version))

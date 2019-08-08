@@ -1,0 +1,21 @@
+parameters:
+  pythons: []
+#  images: []
+
+jobs:
+- ${{ each python in parameters.pythons }}:
+  - job: ${{ coalesce(python.value.name, python.key) }}
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python)'
+          architecture: 'x64'
+        displayName: Use cached Python $(python) for tests.
+
+      - script: pip install -r requirements-ci.txt
+        displayName: Install CI requirements
+
+      - script: pytest -v
+        displayName: Run pytest (Python $(python))
