@@ -10,11 +10,15 @@ pr:
 jobs:
 - template: azure-job.yml
   parameters:
-    jobs:
-      py34: null
-      py35: null
-      py36: null
-      py37: null
+    pythons:
+      py34:
+        spec: '3.4'
+      py35:
+        spec: '3.5'
+      py36:
+        spec: '3.6'
+      py37:
+        spec: '3.7'
 
 #    - job: $(pyver)
 #    displayName: Test $(pyver)

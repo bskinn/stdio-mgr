@@ -10,12 +10,12 @@ jobs:
     steps:
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '$(python)'
+          versionSpec: '$(python.value.spec)'
           architecture: 'x64'
-        displayName: Use cached Python $(python) for tests.
+        displayName: Use cached Python $(python.value.spec) for tests.
 
       - script: pip install -r requirements-ci.txt
         displayName: Install CI requirements
 
       - script: pytest -v
-        displayName: Run pytest (Python $(python))
+        displayName: Run pytest (Python $(python.value.spec))
