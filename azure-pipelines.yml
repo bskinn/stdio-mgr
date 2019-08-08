@@ -21,3 +21,19 @@ jobs:
         spec: '3.7'
     images: [linux, windows, macOs]
 
+- job: flake8
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7'
+
+    - script: pip install -U tox
+      displayName: Install tox
+
+    - script: pip install -r requirements-flake8.txt
+      displayName: Install flake8 & plugins
+
+    - script: flake8 conftest.py src tests
+      displayName: Lint the codebase
