@@ -26,6 +26,8 @@ interactions.
 
 """
 
+import sys
+
 import pytest
 
 from stdio_mgr import stdio_mgr
@@ -35,3 +37,11 @@ from stdio_mgr import stdio_mgr
 def add_stdio_mgr(doctest_namespace):
     """Add stdio_mgr to doctest namespace."""
     doctest_namespace["stdio_mgr"] = stdio_mgr
+
+
+@pytest.fixture(scope="session")
+def convert_newlines():
+    if sys.platform == "win32":
+        return lambda s: s.replace("\n", "\r\n")
+    else:
+        return lambda s: s

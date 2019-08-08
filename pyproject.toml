@@ -15,5 +15,6 @@ include = '''
 exclude = '''
 (
     __pycache__
+  | ^/env/.*
 )
 '''
