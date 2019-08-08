@@ -50,8 +50,8 @@ jobs:
           architecture: 'x64'
         displayName: Use cached Python $(python.version) for tests.
 
-       - script: pip install -r requirements-travis.txt
-         displayName: Install CI requirements
+      - script: pip install -r requirements-travis.txt
+        displayName: Install CI requirements
 
 #      - script: $(pyTools.pythonLocation)/bin/tox -e $(tox.env)
       - script: pytest -v
