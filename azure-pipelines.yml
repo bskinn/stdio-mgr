@@ -1,6 +1,11 @@
 trigger:
   - master
 
+pr:
+  branches:
+    include:
+    - master
+
 jobs:
   - job: 'Test'
     pool:
