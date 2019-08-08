@@ -6,29 +6,38 @@ pr:
     include:
     - master
 
+parameters:
+  pythons: ['3.4', '3.5', '3.6', '3.7']
+  images: [linux, windows, macOs]
+
+
 jobs:
-  - job: 'Test'
+- ${{ each pyver in parameters.pythons }}:
+  - job: $(pyver)
+    displayName: Test $(pyver)
+    python.version: $(pyver)
     pool:
       vmImage: 'ubuntu-latest'
-    strategy:
-      matrix:
-        py34:
-          python.version: '3.4'
+
+#    strategy:
+#      matrix:
+#        py34:
+#          python.version: '3.4'
 #          tox.env: py27
-        py35:
-          python.version: '3.5'
+#        py35:
+#          python.version: '3.5'
 #          tox.env: py27
-        py36:
-          python.version: '3.6'
+#        py36:
+#          python.version: '3.6'
 #          tox.env: py27
-        py37:
-          python.version: '3.7'
+#        py37:
+#          python.version: '3.7'
 #          tox.env: py37
 #        py38:
 #          python.version: '3.8'
 #          tox.env: py27
-        flake8:
-          python.version: '3.7'
+#        flake8:
+#          python.version: '3.7'
 #        docs:
 #          python.version: '3.7'
 #          tox.env: docs
