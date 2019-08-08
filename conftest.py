@@ -41,6 +41,7 @@ def add_stdio_mgr(doctest_namespace):
 
 @pytest.fixture(scope="session")
 def convert_newlines():
+    """Supply platform-dependent newline transform function."""
     if sys.platform == "win32":
         return lambda s: s.replace("\n", "\r\n")
     else:

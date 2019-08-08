@@ -32,5 +32,9 @@ jobs:
       - script: pip install -r requirements-ci.txt
         displayName: Install CI requirements
 
-      - script: pytest -v
-        displayName: Run pytest (Python ${{ python.value.spec }})
+      - $[ if eq(image_name, 'windows') ]:
+        - script: pytest -v
+          displayName: Run Windows pytest (Python ${{ python.value.spec }})
+      - $[ if ne(image_name, 'windows') ]:
+        - script: pytest -v --doctest-glob="README.rst"
+          displayName: Run non-Windows pytest (Python ${{ python.value.spec }})
