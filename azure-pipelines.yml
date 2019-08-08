@@ -6,13 +6,13 @@ pr:
     include:
     - master
 
-parameters:
+variables:
   pythons: ['3.4', '3.5', '3.6', '3.7']
   images: [linux, windows, macOs]
 
 
 jobs:
-- ${{ each pyver in parameters.pythons }}:
+- ${{ each pyver in $(pythons) }}:
   - job: $(pyver)
     displayName: Test $(pyver)
     python.version: $(pyver)
