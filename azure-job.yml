@@ -1,0 +1,40 @@
+parameters:
+  pythons: []
+  images: []
+
+jobs:
+- ${{ each python in parameters.pythons }}:
+  - job: ${{ coalesce(python.value.name, python.key) }}
+    strategy:
+      matrix:
+        ${{ each image in parameters.images }}:
+          ${{ image }}:
+            image_name: ${{ coalesce(image, 'linux') }}
+            ${{ if eq(image, 'linux') }}:
+              image: 'Ubuntu-16.04'
+              pytest_args: --doctest-glob="README.rst"
+            ${{ if eq(image, 'windows') }}:
+              image: 'windows-2019'
+              pytest_args:
+            ${{ if eq(image, 'macOs') }}:
+              image: 'macOS-10.14'
+              pytest_args: --doctest-glob="README.rst"
+            ${{ if notIn(image, 'macOs', 'linux', 'windows') }}:
+              image: ${{ coalesce(image, 'Ubuntu-16.04') }}
+              pytest_args: --doctest-glob="README.rst"
+
+    pool:
+      vmImage: $[ variables.image ]
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '${{ python.value.spec }}'
+          architecture: 'x64'
+        displayName: Use cached Python ${{ python.value.spec }} for tests.
+
+      - script: pip install -r requirements-ci.txt
+        displayName: Install CI requirements
+
+      - script: pytest -v $(pytest_args)
+        displayName: Run pytest (Python ${{ python.value.spec }})
