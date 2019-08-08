@@ -36,5 +36,5 @@ jobs:
       - script: pip install -r requirements-ci.txt
         displayName: Install CI requirements
 
-      - script: pytest -v $[ variables.pytest_args ]
+      - script: pytest -v $(pytest_args)
         displayName: Run pytest (Python ${{ python.value.spec }})
