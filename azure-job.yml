@@ -15,7 +15,7 @@ jobs:
               pytest_args: --doctest-glob="README.rst"
             ${{ if eq(image, 'windows') }}:
               image: 'windows-2019'
-              pytest_args: null
+              pytest_args:
             ${{ if eq(image, 'macOs') }}:
               image: 'macOS-10.14'
               pytest_args: --doctest-glob="README.rst"
