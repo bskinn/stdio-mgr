@@ -19,6 +19,9 @@ jobs:
         spec: '3.6'
       py37:
         spec: '3.7'
+    images:
+      linux: null
+      windows: null
 
 #    - job: $(pyver)
 #    displayName: Test $(pyver)

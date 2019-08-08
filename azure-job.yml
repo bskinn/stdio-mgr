@@ -1,12 +1,27 @@
 parameters:
   pythons: []
-#  images: []
+  images: []
 
 jobs:
 - ${{ each python in parameters.pythons }}:
   - job: ${{ coalesce(python.value.name, python.key) }}
+    strategy:
+      matrix:
+        ${{ each image in parameters.images }}:
+          ${{ image }}:
+            image_name: ${{ coalesce(image, 'linux') }}
+            ${{ if eq(image, 'linux') }}:
+              image: 'Ubuntu-16.04'
+            ${{ if eq(image, 'windows') }}:
+              image: 'windows-2019'
+            ${{ if eq(image, 'macOs') }}:
+              image: 'macOS-10.14'
+            ${{ if notIn(image, 'macOs', 'linux', 'windows') }}:
+              image: ${{ coalesce(image, 'Ubuntu-16.04') }}
+
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: $[ variables.image ]
+
     steps:
       - task: UsePythonVersion@0
         inputs:
