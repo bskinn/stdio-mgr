@@ -19,58 +19,5 @@ jobs:
         spec: '3.6'
       py37:
         spec: '3.7'
-    images: [linux, windows]
+    images: [linux, windows, macOs]
 
-
-#    - job: $(pyver)
-#    displayName: Test $(pyver)
-#    python.version: $(pyver)
-#    pool:
-#      vmImage: 'ubuntu-latest'
-
-#    strategy:
-#      matrix:
-#        py34:
-#          python.version: '3.4'
-#          tox.env: py27
-#        py35:
-#          python.version: '3.5'
-#          tox.env: py27
-#        py36:
-#          python.version: '3.6'
-#          tox.env: py27
-#        py37:
-#          python.version: '3.7'
-#          tox.env: py37
-#        py38:
-#          python.version: '3.8'
-#          tox.env: py27
-#        flake8:
-#          python.version: '3.7'
-#        docs:
-#          python.version: '3.7'
-#          tox.env: docs
-
-#    steps:
-#      - task: UsePythonVersion@0
-#        displayName: Get Python for Python tools.
-#        inputs:
-#          versionSpec: '3.7'
-#          addToPath: false
-#        name: pyTools
-
-#      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade pytest
-#        displayName: Install Python-based tools.
-
-#      - task: UsePythonVersion@0
-#        inputs:
-#          versionSpec: '$(python.version)'
-#          architecture: 'x64'
-#        displayName: Use cached Python $(python.version) for tests.
-
-#      - script: pip install -r requirements-travis.txt
-#        displayName: Install CI requirements
-
-#      - script: $(pyTools.pythonLocation)/bin/tox -e $(tox.env)
-#      - script: pytest -v
-#        displayName: run pytest ($(python.version))
