@@ -29,15 +29,15 @@ jobs:
 #          tox.env: docs
 
     steps:
-      - task: UsePythonVersion@0
-        displayName: Get Python for Python tools.
-        inputs:
-          versionSpec: '3.7'
-          addToPath: false
-        name: pyTools
+#      - task: UsePythonVersion@0
+#        displayName: Get Python for Python tools.
+#        inputs:
+#          versionSpec: '3.7'
+#          addToPath: false
+#        name: pyTools
 
-      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade pytest
-        displayName: Install Python-based tools.
+#      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade pytest
+#        displayName: Install Python-based tools.
 
       - task: UsePythonVersion@0
         inputs:
@@ -45,6 +45,9 @@ jobs:
           architecture: 'x64'
         displayName: Use cached Python $(python.version) for tests.
 
+       - script: pip install -r requirements-travis.txt
+         displayName: Install CI requirements
+
 #      - script: $(pyTools.pythonLocation)/bin/tox -e $(tox.env)
-      - script: $(pyTools.pythonLocation)/bin/pytest -v
+      - script: pytest -v
         displayName: run pytest ($(python.version))
