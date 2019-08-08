@@ -12,7 +12,7 @@ variables:
 
 
 jobs:
-- ${{ each pyver in $(pythons) }}:
+- ${{ each pyver in variables.pythons }}:
   - job: $(pyver)
     displayName: Test $(pyver)
     python.version: $(pyver)
