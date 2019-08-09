@@ -33,6 +33,21 @@ import pytest
 from stdio_mgr import stdio_mgr
 
 
+def pytest_addoption(parser):
+    """Add custom CLI options to pytest."""
+    parser.addoption(
+        "--skipwarnings",
+        action="store_true",
+        help=("Skip tests that intentionally raise warnings"),
+    )
+
+
+@pytest.fixture(scope="session")
+def skip_warnings(pytestconfig):
+    """Provide concise access to '--skipwarnings' CLI option."""
+    return pytestconfig.getoption("--skipwarnings")
+
+
 @pytest.fixture(autouse=True)
 def add_stdio_mgr(doctest_namespace):
     """Add stdio_mgr to doctest namespace."""
