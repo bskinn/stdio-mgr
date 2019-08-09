@@ -15,6 +15,6 @@ python:
 script:
  - python --version
  - pip list
- - pytest --cov=src
+ - pytest --cov=src -p no:warnings
  - if (( $PYTHON_MAJOR == 3 && $PYTHON_MINOR == 7 )); then tox -e flake8; else echo "No flake8."; fi
  - if (( $PYTHON_MAJOR == 3 && $PYTHON_MINOR == 7 )); then codecov; else echo "No codecov."; fi

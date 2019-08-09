@@ -12,16 +12,16 @@ jobs:
             image_name: ${{ coalesce(image, 'linux') }}
             ${{ if eq(image, 'linux') }}:
               image: 'Ubuntu-16.04'
-              pytest_args: --doctest-glob="README.rst"
+              pytest_args: --doctest-glob="README.rst" -p no:warnings
             ${{ if eq(image, 'windows') }}:
               image: 'windows-2019'
-              pytest_args:
+              pytest_args: -p no:warnings
             ${{ if eq(image, 'macOs') }}:
               image: 'macOS-10.14'
-              pytest_args: --doctest-glob="README.rst"
+              pytest_args: --doctest-glob="README.rst" -p no:warnings
             ${{ if notIn(image, 'macOs', 'linux', 'windows') }}:
               image: ${{ coalesce(image, 'Ubuntu-16.04') }}
-              pytest_args: --doctest-glob="README.rst"
+              pytest_args: --doctest-glob="README.rst" -p no:warnings
 
     pool:
       vmImage: $[ variables.image ]
@@ -36,5 +36,5 @@ jobs:
       - script: pip install -r requirements-ci.txt
         displayName: Install CI requirements
 
-      - script: pytest -v $(pytest_args)
+      - script: pytest $(pytest_args)
         displayName: Run pytest (Python ${{ python.value.spec }})
