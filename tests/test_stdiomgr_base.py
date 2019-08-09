@@ -43,8 +43,11 @@ def test_capture_stdout(convert_newlines):
         assert convert_newlines(s + "\n") == o.getvalue()
 
 
-def test_capture_stderr(convert_newlines):
+def test_capture_stderr(convert_newlines, skip_warnings):
     """Confirm stderr capture."""
+    if skip_warnings:
+        pytest.skip("Skip warning tests")
+
     with stdio_mgr() as (i, o, e):
         w = "This is a warning"
 
@@ -104,14 +107,15 @@ def test_managed_stdin(convert_newlines):
         assert convert_newlines(str2[:-1]) == out_str
 
 
-def test_repeated_use(convert_newlines):
+def test_repeated_use(convert_newlines, skip_warnings):
     """Confirm repeated stdio_mgr use works correctly."""
     for _ in range(4):
         # Tests both stdin and stdout
         test_default_stdin(convert_newlines)
 
         # Tests stderr
-        test_capture_stderr(convert_newlines)
+        if not skip_warnings:
+            test_capture_stderr(convert_newlines, skip_warnings)
 
 
 def test_noop():
@@ -130,11 +134,13 @@ def test_exception():
     assert (sys.stdin, sys.stdout, sys.stderr) == real_sys_stdio
 
 
-def test_manual_close(convert_newlines):
+def test_manual_close(convert_newlines, skip_warnings):
     """Confirm files remain open if close=False after the context has exited."""
     with stdio_mgr(close=False) as (i, o, e):
         test_default_stdin(convert_newlines)
-        test_capture_stderr(convert_newlines)
+
+        if not skip_warnings:
+            test_capture_stderr(convert_newlines, skip_warnings)
 
     assert not i.closed
     assert not o.closed
@@ -145,11 +151,13 @@ def test_manual_close(convert_newlines):
     e.close()
 
 
-def test_manual_close_detached_fails(convert_newlines):
+def test_manual_close_detached_fails(convert_newlines, skip_warnings):
     """Confirm files kept open become unusable after being detached."""
     with stdio_mgr(close=False) as (i, o, e):
         test_default_stdin(convert_newlines)
-        test_capture_stderr(convert_newlines)
+
+        if not skip_warnings:
+            test_capture_stderr(convert_newlines, skip_warnings)
 
         i.detach()
         o.detach()
@@ -336,3 +344,22 @@ def test_stdout_access_buffer_after_close(convert_newlines):
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
     assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
+
+
+@pytest.mark.xfail(reason="Want to ensure 'real' warnings aren't suppressed")
+def test_bare_warning(skip_warnings):
+    """Test that a "real" warning is exposed when raised."""
+    from enum import Enum
+
+    # skip_warnings=True implies that pytest is being run with warning
+    # reporting ENABLED. So, proceed to warning test.
+    # skip_warnings=False implies that pytest is being run with
+    # -p no:warnings, and thus the below warning will be suppressed.
+    # Thus, for the latter case, a forced fail is appropriate
+    assert skip_warnings
+
+    class Foo(Enum):
+        One = 1
+        Two = 2
+
+    "foo" in Foo
