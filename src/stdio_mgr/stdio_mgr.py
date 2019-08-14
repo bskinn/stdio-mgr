@@ -27,8 +27,15 @@ interactions.
 """
 
 import sys
-from contextlib import contextmanager, ExitStack, suppress
+from contextlib import ExitStack, suppress
 from io import BufferedRandom, BufferedReader, BytesIO, TextIOBase, TextIOWrapper
+
+# AbstractContextManager was introduced in Python 3.6
+# and may be used with typing.ContextManager.
+try:
+    from contextlib import AbstractContextManager
+except ImportError:  # pragma: no cover
+    AbstractContextManager = object
 
 import attr
 
@@ -240,9 +247,25 @@ class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
     """
 
 
-@contextmanager
-def stdio_mgr(in_str="", close=True):
-    r"""Subsitute temporary text buffers for `stdio` in a managed context.
+class _MultiCloseContextManager(tuple, AbstractContextManager):
+    """Manage multiple closable members of a tuple."""
+
+    def __enter__(self):
+        """Enter context of all members."""
+        with ExitStack() as stack:
+            all(map(stack.enter_context, self))
+
+            self._close_files = stack.pop_all().close
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit context, closing all members."""
+        self._close_files()
+
+
+class StdioManager(_MultiCloseContextManager):
+    r"""Substitute temporary text buffers for `stdio` in a managed context.
 
     Context manager.
 
@@ -278,34 +301,57 @@ def stdio_mgr(in_str="", close=True):
         initially empty.
 
     """
-    if close:
-        out_cls = SafeCloseRandomTextIO
-        in_cls = SafeCloseTeeStdin
-    else:
-        out_cls = RandomTextIO
-        in_cls = TeeStdin
 
-    old_stdin = sys.stdin
-    old_stdout = sys.stdout
-    old_stderr = sys.stderr
-
-    with ExitStack() as stack:
-        new_stdout = stack.enter_context(out_cls())
-        new_stderr = stack.enter_context(out_cls())
-        new_stdin = stack.enter_context(in_cls(new_stdout, in_str))
-
-        close_files = stack.pop_all().close
-
-    sys.stdin = new_stdin
-    sys.stdout = new_stdout
-    sys.stderr = new_stderr
-
-    try:
-        yield new_stdin, new_stdout, new_stderr
-    finally:
-        sys.stdin = old_stdin
-        sys.stdout = old_stdout
-        sys.stderr = old_stderr
-
+    def __new__(cls, in_str="", close=True):
+        """Instantiate new context manager that emulates namedtuple."""
         if close:
-            close_files()
+            out_cls = SafeCloseRandomTextIO
+            in_cls = SafeCloseTeeStdin
+        else:
+            out_cls = RandomTextIO
+            in_cls = TeeStdin
+
+        stdout = out_cls()
+        stderr = out_cls()
+        stdin = in_cls(stdout, in_str)
+
+        self = super(StdioManager, cls).__new__(cls, [stdin, stdout, stderr])
+
+        self._close = close
+
+        return self
+
+    @property
+    def stdin(self):
+        """Return capturing stdin stream."""
+        return self[0]
+
+    @property
+    def stdout(self):
+        """Return capturing stdout stream."""
+        return self[1]
+
+    @property
+    def stderr(self):
+        """Return capturing stderr stream."""
+        return self[2]
+
+    def __enter__(self):
+        """Enter context, replacing sys stdio objects with capturing streams."""
+        self._prior_streams = (sys.stdin, sys.stdout, sys.stderr)
+
+        super().__enter__()
+
+        (sys.stdin, sys.stdout, sys.stderr) = self
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit context, closing files and restoring state of sys module."""
+        (sys.stdin, sys.stdout, sys.stderr) = self._prior_streams
+
+        if self._close:
+            super().__exit__(exc_type, exc_value, traceback)
+
+
+stdio_mgr = StdioManager
