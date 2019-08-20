@@ -3,6 +3,8 @@ black
 pytest
 pytest-cov
 restview
+sphinx<3
+sphinx-rtd-theme
 tox
 twine
 wget
