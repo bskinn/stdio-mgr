@@ -27,6 +27,7 @@ interactions.
 """
 
 import sys
+import warnings
 
 import pytest
 
@@ -45,7 +46,20 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="session")
 def skip_warnings(pytestconfig):
     """Provide concise access to '--skipwarnings' CLI option."""
-    return pytestconfig.getoption("--skipwarnings")
+    skip_warnings = pytestconfig.getoption("--skipwarnings")
+
+    if not skip_warnings:
+        # Check pytest was no invoked with -p no:warnings.
+        try:
+            impl = warnings._showwarnmsg_impl
+        except AttributeError:
+            # Python < 3.6
+            impl = warnings.showwarning
+        assert (
+            impl.__name__ != "append"
+        ), "Please use pytest -p no:warnings or pytest --skipwarnings"
+
+    return skip_warnings
 
 
 @pytest.fixture(autouse=True)

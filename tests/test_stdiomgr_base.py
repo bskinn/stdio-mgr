@@ -45,8 +45,8 @@ def test_capture_stdout(convert_newlines):
         assert convert_newlines(s + "\n") == o.getvalue()
 
 
-def test_capture_stderr(convert_newlines, skip_warnings):
-    """Confirm stderr capture."""
+def test_catch_warnings(convert_newlines, skip_warnings):
+    """Confirm warnings under catch_warnings appear in stderr."""
     if skip_warnings:
         pytest.skip("Skip warning tests")
 
@@ -56,6 +56,31 @@ def test_capture_stderr(convert_newlines, skip_warnings):
         with warnings.catch_warnings():
             warnings.simplefilter("always")
             warnings.warn(w)
+
+        # Warning text comes at the end of a line; newline gets added
+        assert convert_newlines(w + "\n") in e.getvalue()
+
+
+def test_capture_stderr_print(convert_newlines):
+    """Confirm stderr capture of print."""
+    with stdio_mgr() as (i, o, e):
+        w = "This is a warning"
+
+        print(w, file=sys.stderr)
+
+        # Warning text comes at the end of a line; newline gets added
+        assert convert_newlines(w + "\n") in e.getvalue()
+
+
+def test_capture_stderr_warn(convert_newlines, skip_warnings):
+    """Confirm stderr capture of warnings.warn."""
+    if skip_warnings:
+        pytest.skip("Skip warning tests")
+
+    with stdio_mgr() as (i, o, e):
+        w = "This is a warning"
+
+        warnings.warn(w)
 
         # Warning text comes at the end of a line; newline gets added
         assert convert_newlines(w + "\n") in e.getvalue()
@@ -109,15 +134,14 @@ def test_managed_stdin(convert_newlines):
         assert convert_newlines(str2[:-1]) == out_str
 
 
-def test_repeated_use(convert_newlines, skip_warnings):
+def test_repeated_use(convert_newlines):
     """Confirm repeated stdio_mgr use works correctly."""
     for _ in range(4):
         # Tests both stdin and stdout
         test_default_stdin(convert_newlines)
 
         # Tests stderr
-        if not skip_warnings:
-            test_capture_stderr(convert_newlines, skip_warnings)
+        test_capture_stderr_print(convert_newlines)
 
 
 def test_noop():
@@ -136,13 +160,12 @@ def test_exception():
     assert (sys.stdin, sys.stdout, sys.stderr) == real_sys_stdio
 
 
-def test_manual_close(convert_newlines, skip_warnings):
+def test_manual_close(convert_newlines):
     """Confirm files remain open if close=False after the context has exited."""
     with stdio_mgr(close=False) as (i, o, e):
         test_default_stdin(convert_newlines)
 
-        if not skip_warnings:
-            test_capture_stderr(convert_newlines, skip_warnings)
+        test_capture_stderr_print(convert_newlines)
 
     assert not i.closed
     assert not o.closed
@@ -153,13 +176,12 @@ def test_manual_close(convert_newlines, skip_warnings):
     e.close()
 
 
-def test_manual_close_detached_fails(convert_newlines, skip_warnings):
+def test_manual_close_detached_fails(convert_newlines):
     """Confirm files kept open become unusable after being detached."""
     with stdio_mgr(close=False) as (i, o, e):
         test_default_stdin(convert_newlines)
 
-        if not skip_warnings:
-            test_capture_stderr(convert_newlines, skip_warnings)
+        test_capture_stderr_print(convert_newlines)
 
         i.detach()
         o.detach()
