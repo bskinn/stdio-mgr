@@ -37,7 +37,7 @@ class _PersistedBytesIO(BytesIO):
     """Class to persist the value after close.
 
     A copy of the bytes value is given to a callback prior to
-    the :meth:`~BytesIO.close`.
+    the :meth:`~io.IOBase.close`.
     """
 
     def __init__(self, closure_callback):
@@ -53,17 +53,17 @@ class _PersistedBytesIO(BytesIO):
 class RandomTextIO(TextIOWrapper):
     """Class to capture writes to a buffer even when detached.
 
-    Subclass of :cls:`~io.TextIOWrapper` that utilises an internal
+    Subclass of :class:`~io.TextIOWrapper` that utilises an internal
     buffer defaulting to utf-8 encoding.
 
-    As a subclass of :cls:`~io.TextIOWrapper`, it is not thread-safe.
+    As a subclass of :class:`~io.TextIOWrapper`, it is not thread-safe.
 
     All writes are immediately flushed to the buffer.
 
     This class provides :meth:`~RandomTextIO.getvalue` which emulates the
-    behavior of :meth:`~io.StringIO.getvalue`, decoding the buffer
-    using the :attr:`~io.TextIOWrapper.encoding`.  The value is available
-    even if the stream is detached or closed.
+    behavior of :meth:`StringIO.getvalue() <io.StringIO.getvalue>`,
+    decoding the buffer using the :attr:`~io.TextIOBase.encoding`.
+    The value is available even if the stream is detached or closed.
     """
 
     def __init__(self):
@@ -92,23 +92,23 @@ class RandomTextIO(TextIOWrapper):
 class TeeStdin(TextIOWrapper):
     """Class to tee contents to a side buffer on read.
 
-    Subclass of :cls:`~io.TextIOWrapper` that overrides
-    :meth:`~io.TextIOWrapper.read` and :meth:`~io.TextIOWrapper.readline`
+    Subclass of :class:`~io.TextIOWrapper` that overrides
+    :meth:`~io.TextIOBase.read` and :meth:`~io.TextIOBase.readline`
     to tee all content *read* from the stream to `tee`. The
     canonical use-case is with :func:`stdio_mgr`,
     where `tee` is the mocked stream for `stdin`.
 
     To emphasize: teeing occurs on content *read*, **not write**.
 
-    As a subclass of :cls:`~io.TextIOWrapper`, it is not thread-safe.
+    As a subclass of :class:`~io.TextIOWrapper`, it is not thread-safe.
 
     This class provides :meth:`~TeeStdin.getvalue` which emulates the
-    behavior of :meth:`~io.StringIO.getvalue`, decoding the buffer
-    using the :attr:`~io.TextIOWrapper.encoding`.
+    behavior of :meth:`StringIO.getvalue() <io.StringIO.getvalue>`,
+    decoding the buffer using the :attr:`~io.TextIOBase.encoding`.
 
     This class also provides the method
-    :meth:`TeeStdin.append`, which is not available
-    for the base :cls:`~io.TextIOWrapper` type.
+    :meth:`~TeeStdin.append`, which is not available
+    for the base :class:`TextIOWrapper <io.TextIOBase>` type.
     This method adds new content to the end of the
     stream while leaving the read position unchanged.
 
@@ -116,21 +116,21 @@ class TeeStdin(TextIOWrapper):
 
     `tee`
 
-        :cls:`~io.TextIOBase` -- Text stream to receive
-        content teed from :cls:`TeeStdin` upon read
+        :class:`~io.TextIOBase` -- Text stream to receive
+        content teed from :class:`TeeStdin` upon read
 
     `init_text`
 
         |str| *(optional)* --
         Text to use as the initial contents of the
-        underlying :cls:`~io.TextIOWrapper`. `init_text` is
-        passed directly to the :cls:~io.TextIOWrapper`
+        underlying :class:`~io.TextIOWrapper`. `init_text` is
+        passed directly to the :class:~io.TextIOWrapper`
         instantiation call. Default is an empty |str|.
 
     `encoding`
 
         |str| *(optional)* --
-        Encoding for the underlying :cls:`~io.TextIOWrapper`.
+        Encoding for the underlying :class:`~io.TextIOWrapper`.
         Default is "utf-8".
     """
 
@@ -148,7 +148,7 @@ class TeeStdin(TextIOWrapper):
     def read(self, size=None):  # pragma: no cover
         """Tee text to side buffer when read.
 
-        Overrides :meth:`io.TextIOWrapper.read <TextIOWrapper.read>`
+        Overrides :meth:`TextIOWrapper.read() <io.TextIOBase.read>`
         to implement the teeing.
 
         Parameters
@@ -167,7 +167,7 @@ class TeeStdin(TextIOWrapper):
     def readline(self, size=-1):
         """Tee text to side buffer when read.
 
-        Overrides :meth:`io.TextIOWrapper.readline <TextIOWrapper.readline>`
+        Overrides :meth:`TextIOWrapper.readline() <io.TextIOBase.readline>`
         to implement the teeing.
 
         Parameters
@@ -212,7 +212,7 @@ class TeeStdin(TextIOWrapper):
 class _SafeCloseIOBase(TextIOBase):
     """Class to ignore ValueError when exiting the context.
 
-    Subclass of :cls:`~io.TextIOBase` that disregards ValueError, which can
+    Subclass of :class:`~io.TextIOBase` that disregards ValueError, which can
     occur if the file has already been closed, when exiting the context.
     """
 
@@ -229,14 +229,14 @@ class _SafeCloseIOBase(TextIOBase):
 class SafeCloseRandomTextIO(_SafeCloseIOBase, RandomTextIO):
     """Class to capture writes to a buffer even when detached, and safely close.
 
-    Subclass of :cls:`~_SafeCloseIOBase` and :cls:`~RandomTextIO`.
+    Subclass of :class:`~_SafeCloseIOBase` and :class:`~RandomTextIO`.
     """
 
 
 class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
     """Class to tee contents to a side buffer on read, and safely close.
 
-    Subclass of :cls:`~_SafeCloseIOBase` and :cls:`~TeeStdin`.
+    Subclass of :class:`~_SafeCloseIOBase` and :class:`~TeeStdin`.
     """
 
 
@@ -246,9 +246,9 @@ def stdio_mgr(in_str="", close=True):
 
     Context manager.
 
-    Substitutes empty :cls:`~io.RandomTextIO`\ s for
-    :cls:`sys.stdout` and :cls:`sys.stderr`,
-    and a :cls:`TeeStdin` for :cls:`sys.stdin` within the managed context.
+    Substitutes empty :class:`RandomTextIO`\ s for
+    :obj:`sys.stdout` and :obj:`sys.stderr`,
+    and a :class:`TeeStdin` for :obj:`sys.stdin` within the managed context.
 
     Upon exiting the context, the original stream objects are restored
     within :mod:`sys`, and the temporary streams are closed.
@@ -258,23 +258,23 @@ def stdio_mgr(in_str="", close=True):
     in_str
 
         |str| *(optional)* -- Initialization text for
-        the :cls:`TeeStdin` substitution for `stdin`.
+        the :class:`TeeStdin` substitution for `stdin`.
         Default is an empty string.
 
     Yields
     ------
     in_
 
-        :cls:`TeeStdin` -- Temporary stream for `stdin`.
+        :class:`TeeStdin` -- Temporary stream for `stdin`.
 
     out_
 
-        :cls:`~io.RandomTextIO` -- Temporary stream for `stdout`,
+        :class:`RandomTextIO` -- Temporary stream for `stdout`,
         initially empty.
 
     err_
 
-        :cls:`~io.RandomTextIO` -- Temporary stream for `stderr`,
+        :class:`RandomTextIO` -- Temporary stream for `stderr`,
         initially empty.
 
     """
