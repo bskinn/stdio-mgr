@@ -35,7 +35,7 @@ jobs:
     - script: pip install -r requirements-flake8.txt
       displayName: Install flake8 & plugins
 
-    - script: flake8 conftest.py src tests
+    - script: tox -e flake8
       displayName: Lint the codebase
 
 # This job runs the test suite, skipping any tests that
