@@ -3,10 +3,9 @@ black
 pytest
 pytest-cov
 restview
-sphinx<3
-sphinx-rtd-theme
 tox
 twine
 wget
 -e .
 -r requirements-flake8.txt
+-r requirements-doc.txt
