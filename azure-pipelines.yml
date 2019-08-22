@@ -81,7 +81,7 @@ jobs:
     - script: pip install -r requirements-doc.txt
       displayName: Install documentation requirements
 
-    - script: cd doc && mkdir source/_static && mkdir source/_templates && make html O=-Wn
+    - script: cd doc && make html O=-Wn
       displayName: Build docs, erroring on any build warning
 
 - job: doctests
