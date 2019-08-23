@@ -8,3 +8,4 @@ twine
 wget
 -e .
 -r requirements-flake8.txt
+-r requirements-doc.txt

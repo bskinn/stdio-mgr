@@ -10,6 +10,7 @@ include = '''
   | ^/src/.*[.]py$
   | ^/setup[.]py
   | ^/conftest[.]py
+  | ^/doc/source/conf[.]py
 )
 '''
 exclude = '''
