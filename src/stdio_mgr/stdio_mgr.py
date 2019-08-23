@@ -34,14 +34,19 @@ import attr
 
 
 class _PersistedBytesIO(BytesIO):
-    """Class to persist the stream after close.
+    """Class to persist the value after close.
 
-    A copy of the bytes value is available at :attr:`_closed_buf` after
+    A copy of the bytes value is given to a callback prior to
     the :meth:`~BytesIO.close`.
     """
 
+    def __init__(self, closure_callback):
+        """Store callback invoked before close."""
+        self._callback = closure_callback
+
     def close(self):
-        self._closed_buf = self.getvalue()
+        """Send buffer to callback and close."""
+        self._callback(self.getvalue())
         super().close()
 
 
@@ -63,7 +68,7 @@ class RandomTextIO(TextIOWrapper):
 
     def __init__(self):
         """Initialise buffer with utf-8 encoding."""
-        self._stream = _PersistedBytesIO()
+        self._stream = _PersistedBytesIO(self._set_closed_buf)
         self._buf = BufferedRandom(self._stream)
         super().__init__(self._buf, encoding="utf-8")
 
@@ -72,10 +77,13 @@ class RandomTextIO(TextIOWrapper):
         super().write(*args, **kwargs)
         self.flush()
 
+    def _set_closed_buf(self, value):
+        self._closed_buf = value
+
     def getvalue(self):
         """Obtain buffer of text sent to the stream."""
         if self._stream.closed:
-            return self._stream._closed_buf.decode(self.encoding)
+            return self._closed_buf.decode(self.encoding)
         else:
             return self._stream.getvalue().decode(self.encoding)
 
