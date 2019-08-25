@@ -26,13 +26,65 @@ interactions.
 
 """
 
+import collections.abc
 import io
 import sys
 import warnings
 
+# AbstractContextManager was introduced in Python 3.6
+try:
+    from contextlib import AbstractContextManager
+except ImportError:
+    AbstractContextManager = object
+
 import pytest
 
-from stdio_mgr import stdio_mgr
+from stdio_mgr import stdio_mgr, StdioManager
+
+
+def test_context_manager_instance():
+    """Confirm StdioManager instance is a tuple and registered context manager."""
+    cm = StdioManager()
+
+    assert isinstance(cm, tuple)
+
+    value_list = list(cm)
+
+    assert isinstance(cm, collections.abc.Sequence)
+    assert isinstance(cm, AbstractContextManager)
+    assert not isinstance(cm, collections.abc.MutableSequence)
+    assert all(isinstance(item, io.TextIOWrapper) for item in cm)
+
+    # Check copies are equal
+    assert list(cm) == value_list
+
+
+def test_context_manager_instance_with():
+    """Confirm StdioManager works in with."""
+    with StdioManager() as cm:
+        assert isinstance(cm, tuple)
+
+        inner_value_list = list(cm)
+
+        assert isinstance(cm, collections.abc.Sequence)
+        assert isinstance(cm, AbstractContextManager)
+        assert not isinstance(cm, collections.abc.MutableSequence)
+        assert all(isinstance(item, io.TextIOWrapper) for item in cm)
+        # Check copies are equal
+        assert list(cm) == inner_value_list
+
+    # Still equal
+    assert list(cm) == inner_value_list
+
+
+def test_instance_capture_stdout(convert_newlines):
+    """Confirm object stdout capture."""
+    with stdio_mgr() as cm:
+        s = "test str"
+        print(s)
+
+        # 'print' automatically adds a newline
+        assert convert_newlines(s + "\n") == cm.stdout.getvalue()
 
 
 def test_capture_stdout(convert_newlines):
@@ -72,6 +124,17 @@ def test_capture_stderr_print(convert_newlines):
         assert convert_newlines(w + "\n") in e.getvalue()
 
 
+def test_capture_instance_stderr_print(convert_newlines):
+    """Confirm object capture of stderr print."""
+    with stdio_mgr() as cm:
+        w = "This is a warning"
+
+        print(w, file=sys.stderr)
+
+        # Warning text comes at the end of a line; newline gets added
+        assert convert_newlines(w + "\n") in cm.stderr.getvalue()
+
+
 def test_capture_stderr_warn(convert_newlines, skip_warnings):
     """Confirm stderr capture of warnings.warn."""
     if skip_warnings:
@@ -98,6 +161,23 @@ def test_default_stdin(convert_newlines):
         # TeeStdin tees the stream contents, *including* the newline,
         # to the managed stdout
         assert convert_newlines(in_str) == o.getvalue()
+
+        # 'input' strips the trailing newline before returning
+        assert convert_newlines(in_str[:-1]) == out_str
+
+
+def test_capture_instance_stdin(convert_newlines):
+    """Confirm object stdin."""
+    in_str = "This is a test string.\n"
+
+    with stdio_mgr(in_str) as cm:
+        assert in_str == cm.stdin.getvalue()
+
+        out_str = input()
+
+        # TeeStdin tees the stream contents, *including* the newline,
+        # to the managed stdout
+        assert convert_newlines(in_str) == cm.stdout.getvalue()
 
         # 'input' strips the trailing newline before returning
         assert convert_newlines(in_str[:-1]) == out_str
@@ -145,9 +225,14 @@ def test_repeated_use(convert_newlines):
 
 
 def test_noop():
-    """Confirm state is restored after context."""
+    """Confirm sys module state is restored after use."""
     real_sys_stdio = (sys.stdin, sys.stdout, sys.stderr)
+
     stdio_mgr()
+    assert (sys.stdin, sys.stdout, sys.stderr) == real_sys_stdio
+
+    with stdio_mgr():
+        pass
     assert (sys.stdin, sys.stdout, sys.stderr) == real_sys_stdio
 
 

@@ -27,4 +27,5 @@ interactions.
 """
 
 from stdio_mgr.stdio_mgr import stdio_mgr  # noqa: F401
+from stdio_mgr.stdio_mgr import StdioManager  # noqa: F401
 from stdio_mgr.version import __version__  # noqa: F401
