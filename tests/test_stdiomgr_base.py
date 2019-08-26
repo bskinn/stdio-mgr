@@ -166,6 +166,23 @@ def test_default_stdin(convert_newlines):
         assert convert_newlines(in_str[:-1]) == out_str
 
 
+def test_default_stdin_read_1():
+    """Confirm stdin reading by single bytes."""
+    in_str = "This is a test string."
+
+    with stdio_mgr(in_str) as (i, o, e):
+        assert in_str == i.getvalue()
+
+        # TeeStdin tees the stream contents to the managed stdout
+        # only as they are read, one byte at a time.
+        for offset, char in enumerate(in_str):
+            out_str = i.read(1)
+
+            assert out_str == char
+
+            assert o.getvalue() == in_str[: offset + 1]
+
+
 def test_capture_instance_stdin(convert_newlines):
     """Confirm object stdin."""
     in_str = "This is a test string.\n"

@@ -152,7 +152,7 @@ class TeeStdin(TextIOWrapper):
         self._buf = BytesIO(self.init_text.encode(self._encoding))
         super().__init__(BufferedReader(self._buf), encoding=self._encoding)
 
-    def read(self, size=None):  # pragma: no cover
+    def read(self, size=None):
         """Tee text to side buffer when read.
 
         Overrides :meth:`TextIOWrapper.read() <io.TextIOBase.read>`
