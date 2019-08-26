@@ -1,4 +1,3 @@
-attrs>=17
 codecov
 pytest
 pytest-cov

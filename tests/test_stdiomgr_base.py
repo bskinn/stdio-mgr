@@ -40,6 +40,7 @@ except ImportError:
 import pytest
 
 from stdio_mgr import stdio_mgr, StdioManager
+from stdio_mgr.stdio_mgr import _Tee
 
 
 def test_context_manager_instance():
@@ -453,6 +454,14 @@ def test_stdout_access_buffer_after_close(convert_newlines):
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
     assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
+
+
+def test_tee_type():
+    """Test that incorrect type for Tee.tee raises ValueError."""
+    with pytest.raises(ValueError) as err:
+        _Tee(tee="str", buffer=io.StringIO())
+
+    assert str(err.value) == "tee must be a TextIOBase."
 
 
 @pytest.mark.xfail(reason="Want to ensure 'real' warnings aren't suppressed")
