@@ -272,7 +272,28 @@ class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
     """
 
 
-class _MultiCloseContextManager(tuple, AbstractContextManager):
+class TupleContextManager(tuple, AbstractContextManager):
+    """Base for context managers that are also a tuple."""
+
+    # This is needed to establish a workable MRO.
+
+
+class StdioTuple(TupleContextManager):
+    """Tuple context manager of stdin, stdout and stderr streams."""
+
+    def __new__(cls, iterable):
+        """Instantiate new tuple from iterable constaining three TextIOBase."""
+        items = list(iterable)
+        assert len(items) == 3  # noqa: S101
+        # pytest and colorama break this assertion when applied to the sys.foo
+        # when they replace them with custom objects, and probably many other
+        # similar tools do the same
+        # assert all(isinstance(item, TextIOBase) for item in items)  # noqa: E800
+
+        return super(StdioTuple, cls).__new__(cls, items)
+
+
+class _MultiCloseContextManager(TupleContextManager):
     """Manage multiple closable members of a tuple."""
 
     def __enter__(self):
@@ -289,17 +310,8 @@ class _MultiCloseContextManager(tuple, AbstractContextManager):
         self._close_files()
 
 
-class StdioManager(_MultiCloseContextManager):
-    r"""Substitute temporary text buffers for `stdio` in a managed context.
-
-    Context manager.
-
-    Substitutes empty :class:`RandomTextIO`\ s for
-    :obj:`sys.stdout` and :obj:`sys.stderr`,
-    and a :class:`TeeStdin` for :obj:`sys.stdin` within the managed context.
-
-    Upon exiting the context, the original stream objects are restored
-    within :mod:`sys`, and the temporary streams are closed.
+class FakeStdioTuple(StdioTuple, _MultiCloseContextManager):
+    """Tuple of stdin, stdout and stderr streams.
 
     Parameters
     ----------
@@ -328,7 +340,7 @@ class StdioManager(_MultiCloseContextManager):
     """
 
     def __new__(cls, in_str="", close=True):
-        """Instantiate new context manager that emulates namedtuple."""
+        """Instantiate new tuple of fake stdin, stdout and stderr."""
         if close:
             out_cls = SafeCloseRandomTextIO
             in_cls = SafeCloseTeeStdin
@@ -340,7 +352,37 @@ class StdioManager(_MultiCloseContextManager):
         stderr = out_cls()
         stdin = in_cls(stdout, in_str)
 
-        self = super(StdioManager, cls).__new__(cls, [stdin, stdout, stderr])
+        return super(FakeStdioTuple, cls).__new__(cls, [stdin, stdout, stderr])
+
+
+class CurrentSysIoStreams(StdioTuple):
+    """Tuple of current stdin, stdout and stderr streams."""
+
+    def __new__(cls):
+        """Instantiate new tuple of current sys.stdin, sys.stdout and sys.stderr."""
+        items = [sys.stdin, sys.stdout, sys.stderr]
+        return super(CurrentSysIoStreams, cls).__new__(cls, items)
+
+
+class StdioManager(_MultiCloseContextManager):
+    r"""Substitute temporary text buffers for `stdio` in a managed context.
+
+    Context manager.
+
+    Substitutes empty :class:`RandomTextIO`\ s for
+    :obj:`sys.stdout` and :obj:`sys.stderr`,
+    and a :class:`TeeStdin` for :obj:`sys.stdin` within the managed context.
+
+    Upon exiting the context, the original stream objects are restored
+    within :mod:`sys`, and the temporary streams are closed.
+    """
+
+    def __new__(cls, in_str="", close=True, streams=None):
+        """Instantiate new context manager for streams."""
+        if not streams:
+            streams = FakeStdioTuple(in_str, close)
+
+        self = super(StdioManager, cls).__new__(cls, streams)
 
         self._close = close
 
@@ -363,7 +405,7 @@ class StdioManager(_MultiCloseContextManager):
 
     def __enter__(self):
         """Enter context, replacing sys stdio objects with capturing streams."""
-        self._prior_streams = (sys.stdin, sys.stdout, sys.stderr)
+        self._prior_streams = CurrentSysIoStreams()
 
         super().__enter__()
 
@@ -380,3 +422,4 @@ class StdioManager(_MultiCloseContextManager):
 
 
 stdio_mgr = StdioManager
+_INITIAL_SYS_STREAMS = StdioTuple([sys.stdin, sys.stdout, sys.stderr])
