@@ -54,6 +54,12 @@ def test_context_manager_instance():
     assert isinstance(cm, AbstractContextManager)
     assert not isinstance(cm, collections.abc.MutableSequence)
     assert all(isinstance(item, io.TextIOWrapper) for item in cm)
+    # The TextIOWrapper defaults are currently used and asserted here,
+    # though they are underlying implementation details not yet exposed
+    # in the API, and are subject to change.
+    assert all(not item.line_buffering for item in cm)
+    if sys.version_info >= (3, 7):
+        assert all(not item.write_through for item in cm)
 
     # Check copies are equal
     assert list(cm) == value_list
@@ -63,6 +69,9 @@ def test_context_manager_instance_with():
     """Confirm StdioManager works in with."""
     with StdioManager() as cm:
         assert isinstance(cm, tuple)
+
+        with pytest.raises(EOFError):
+            input()
 
         inner_value_list = list(cm)
 
@@ -96,6 +105,11 @@ def test_capture_stdout(convert_newlines):
         # 'print' automatically adds a newline
         assert convert_newlines(s + "\n") == o.getvalue()
 
+        assert "" == e.getvalue()
+
+        with pytest.raises(EOFError):
+            input()
+
 
 def test_catch_warnings(convert_newlines, skip_warnings):
     """Confirm warnings under catch_warnings appear in stderr."""
@@ -112,6 +126,8 @@ def test_catch_warnings(convert_newlines, skip_warnings):
         # Warning text comes at the end of a line; newline gets added
         assert convert_newlines(w + "\n") in e.getvalue()
 
+        assert "" == o.getvalue()
+
 
 def test_capture_stderr_print(convert_newlines):
     """Confirm stderr capture of print."""
@@ -122,6 +138,11 @@ def test_capture_stderr_print(convert_newlines):
 
         # Warning text comes at the end of a line; newline gets added
         assert convert_newlines(w + "\n") in e.getvalue()
+
+        assert "" == o.getvalue()
+
+        with pytest.raises(EOFError):
+            input()
 
 
 def test_capture_instance_stderr_print(convert_newlines):
@@ -165,6 +186,9 @@ def test_default_stdin(convert_newlines):
         # 'input' strips the trailing newline before returning
         assert convert_newlines(in_str[:-1]) == out_str
 
+        with pytest.raises(EOFError):
+            input()
+
 
 def test_default_stdin_read_1():
     """Confirm stdin reading by single bytes."""
@@ -181,6 +205,12 @@ def test_default_stdin_read_1():
             assert out_str == char
 
             assert o.getvalue() == in_str[: offset + 1]
+
+        o.getvalue() == in_str
+
+        assert i.read(1) == ""
+
+        o.getvalue() == in_str
 
 
 def test_capture_instance_stdin(convert_newlines):
@@ -229,6 +259,9 @@ def test_managed_stdin(convert_newlines):
         # 'input' should just have put str2 to out_str, *without*
         # the trailing newline, per normal 'input' behavior.
         assert convert_newlines(str2[:-1]) == out_str
+
+        with pytest.raises(EOFError):
+            input()
 
 
 def test_repeated_use(convert_newlines):
