@@ -2,7 +2,7 @@ dist: xenial
 install:
  - PYTHON_MAJOR=$( python -c 'import sys; print(sys.version_info.major)' )
  - PYTHON_MINOR=$( python -c 'import sys; print(sys.version_info.minor)' )
- - pip install -U pip setuptools
+ - python -m pip install -U pip setuptools
  - pip install -U --force-reinstall -r requirements-ci.txt
  - if (( ( $PYTHON_MAJOR > 3 ) || ( $PYTHON_MAJOR == 3 && $PYTHON_MINOR >= 6 ) )); then pip install -r requirements-flake8.txt; fi
 language: python
@@ -12,6 +12,14 @@ python:
  - 3.6
  - 3.7
  - 3.8-dev
+jobs:
+ include:
+  - os: windows
+    language: sh
+    python: "3.7"
+    before_install:
+     - choco install python --version 3.7.2
+     - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
 script:
  - python --version
  - pip list
