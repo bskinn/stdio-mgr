@@ -127,7 +127,7 @@ class _Tee(TextIOWrapper):
             raise ValueError("tee must be a TextIOBase.")
         self.tee = tee
 
-    def read(self, size=None):  # pragma: no cover
+    def read(self, size=None):
         """Tee text to side buffer when read.
 
         Overrides :meth:`TextIOWrapper.read() <io.TextIOBase.read>`
