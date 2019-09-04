@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### [Unreleased]
 
-...
+ * Removed use of `attrs`.
 
 ### [1.0.1] - 2019-02-11
 
