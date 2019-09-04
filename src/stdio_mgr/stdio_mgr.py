@@ -115,7 +115,7 @@ class TeeStdin(TextIOWrapper):
 
     This class also provides the method
     :meth:`~TeeStdin.append`, which is not available
-    for the base :class:`TextIOWrapper <io.TextIOBase>` type.
+    for the base :class:`TextIOWrapper <io.TextIOWrapper>` type.
     This method adds new content to the end of the
     stream while leaving the read position unchanged.
 
@@ -129,10 +129,8 @@ class TeeStdin(TextIOWrapper):
     `init_text`
 
         |str| *(optional)* --
-        Text to use as the initial contents of the
-        underlying :class:`~io.TextIOWrapper`. `init_text` is
-        passed directly to the :class:~io.TextIOWrapper`
-        instantiation call. Default is an empty |str|.
+        Text to use as the initial contents of the stream to be teed.
+        Default is an empty |str|.
 
     `encoding`
 
