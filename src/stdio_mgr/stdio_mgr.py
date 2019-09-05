@@ -82,8 +82,7 @@ class RandomTextIO(TextIOWrapper):
     def __init__(self):
         """Initialise buffer with utf-8 encoding."""
         self._stream = _PersistedBytesIO(self._set_closed_buf)
-        self._buf = BufferedRandom(self._stream)
-        super().__init__(self._buf, encoding="utf-8")
+        super().__init__(BufferedRandom(self._stream), encoding="utf-8")
 
     def write(self, *args, **kwargs):
         """Flush after each write."""

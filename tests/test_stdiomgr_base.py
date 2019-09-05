@@ -468,8 +468,6 @@ def test_stdout_detached(convert_newlines):
         f = o.detach()
 
         assert isinstance(f, io.BufferedRandom)
-        assert f is o._buf
-        assert f is i.tee._buf
 
         assert convert_newlines("test str\n") == o.getvalue()
 
