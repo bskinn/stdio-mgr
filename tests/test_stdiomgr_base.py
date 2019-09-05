@@ -28,6 +28,7 @@ interactions.
 
 import collections.abc
 import io
+import os
 import sys
 import warnings
 
@@ -541,6 +542,23 @@ def test_tee_type():
         _Tee(tee="str", buffer=io.StringIO())
 
     assert str(err.value) == "tee must be a TextIOBase."
+
+
+def test_non_closing_type():
+    """Test that incorrect type doesnt raise exceptions."""
+    # Ensure the type used has no __exit__ or close()
+    assert not hasattr("", "__exit__")
+    assert not hasattr("", "close")
+
+    with StdioManager(streams=("", "", "")):
+        pass
+
+
+def test_dev_null():
+    """Test that os.devnull is a valid input and output stream."""
+    with open(os.devnull, "r") as devnull_in, open(os.devnull, "w") as devnull_out:
+        with StdioManager(streams=(devnull_in, devnull_out, devnull_out)):
+            print("hello")
 
 
 @pytest.mark.xfail(reason="Want to ensure 'real' warnings aren't suppressed")
