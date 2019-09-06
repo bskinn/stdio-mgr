@@ -26,46 +26,58 @@ interactions.
 
 """
 
+import os
 import sys
 import warnings
 
+import _pytest.warnings
 import pytest
 
 from stdio_mgr import stdio_mgr
 
 
-def pytest_addoption(parser):
-    """Add custom CLI options to pytest."""
-    parser.addoption(
-        "--skipwarnings",
-        action="store_true",
-        help=("Skip tests that intentionally raise warnings"),
-    )
-
-
 @pytest.fixture(scope="session")
-def skip_warnings(pytestconfig):
-    """Provide concise access to '--skipwarnings' CLI option."""
-    skip_warnings = pytestconfig.getoption("--skipwarnings")
+def warnings_are_errors(pytestconfig):
+    """Provide concise access to '-W error::Warning' CLI option."""
+    try:
+        cmdline_filters = pytestconfig.getoption("pythonwarnings")
+    except ValueError:
+        return False
 
-    if not skip_warnings:
-        # Check pytest was no invoked with -p no:warnings.
-        try:
-            impl = warnings._showwarnmsg_impl
-        except AttributeError:
-            # Python < 3.6
-            impl = warnings.showwarning
-        assert (
-            impl.__name__ != "append"
-        ), "Please use pytest -p no:warnings or pytest --skipwarnings"
+    return cmdline_filters and "error::Warning" in cmdline_filters
 
-    return skip_warnings
+
+@pytest.fixture
+def check_warnings_plugin_enabled():
+    """Check the warnings module is enabled."""
+    # Check pytest was not invoked with -p no:warnings.
+    try:
+        impl = warnings._showwarnmsg_impl
+    except AttributeError:
+        # Python < 3.6
+        impl = warnings.showwarning
+
+    return impl.__name__ == "append"
+
+
+@pytest.fixture
+def enable_warnings_plugin(request):
+    """Enable warnings for a single test."""
+    assert check_warnings_plugin_enabled
+    with _pytest.warnings.catch_warnings_for_item(
+        config=request.config,
+        ihook=request.node.ihook,
+        when="runtest",
+        item=request.node,
+    ):
+        yield
 
 
 @pytest.fixture(autouse=True)
 def add_stdio_mgr(doctest_namespace):
     """Add stdio_mgr to doctest namespace."""
     doctest_namespace["stdio_mgr"] = stdio_mgr
+    doctest_namespace["os"] = os
 
 
 @pytest.fixture(scope="session")
