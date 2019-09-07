@@ -42,6 +42,8 @@ import pytest
 from stdio_mgr import stdio_mgr, StdioManager
 from stdio_mgr.stdio_mgr import _Tee
 
+_WARNING_ARGS_ERROR = "Please use pytest -p no:warnings or pytest --W error::Warning"
+
 
 def test_context_manager_instance():
     """Confirm StdioManager instance is a tuple and registered context manager."""
@@ -112,10 +114,14 @@ def test_capture_stdout(convert_newlines):
             input()
 
 
-def test_catch_warnings(convert_newlines, skip_warnings):
+def test_catch_warnings(
+    convert_newlines, warnings_are_errors, check_warnings_plugin_enabled
+):
     """Confirm warnings under catch_warnings appear in stderr."""
-    if skip_warnings:
+    if warnings_are_errors:
         pytest.skip("Skip warning tests")
+
+    assert not check_warnings_plugin_enabled, _WARNING_ARGS_ERROR
 
     with stdio_mgr() as (i, o, e):
         w = "This is a warning"
@@ -157,9 +163,9 @@ def test_capture_instance_stderr_print(convert_newlines):
         assert convert_newlines(w + "\n") in cm.stderr.getvalue()
 
 
-def test_capture_stderr_warn(convert_newlines, skip_warnings):
+def test_capture_stderr_warn(convert_newlines, warnings_are_errors):
     """Confirm stderr capture of warnings.warn."""
-    if skip_warnings:
+    if warnings_are_errors:
         pytest.skip("Skip warning tests")
 
     with stdio_mgr() as (i, o, e):
@@ -544,16 +550,15 @@ def test_tee_type():
 
 
 @pytest.mark.xfail(reason="Want to ensure 'real' warnings aren't suppressed")
-def test_bare_warning(skip_warnings):
+def test_bare_warning(
+    enable_warnings_plugin, warnings_are_errors, check_warnings_plugin_enabled
+):
     """Test that a "real" warning is exposed when raised."""
     from enum import Enum
 
-    # skip_warnings=True implies that pytest is being run with warning
-    # reporting ENABLED. So, proceed to warning test.
-    # skip_warnings=False implies that pytest is being run with
-    # -p no:warnings, and thus the below warning will be suppressed.
-    # Thus, for the latter case, a forced fail is appropriate
-    assert skip_warnings
+    assert warnings_are_errors, _WARNING_ARGS_ERROR
+
+    assert check_warnings_plugin_enabled, _WARNING_ARGS_ERROR
 
     class Foo(Enum):
         One = 1

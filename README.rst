@@ -52,7 +52,7 @@ been imported via:
 
 .. code::
 
-    from stdio_mgr import stdio_mgr
+    >>> from stdio_mgr import stdio_mgr
 
 **Mock** ``stdout``\ **:**
 
@@ -60,7 +60,7 @@ been imported via:
 
     >>> with stdio_mgr() as (in_, out_, err_):
     ...     print('foobar')
-    ...     out_cap = out_.getvalue()
+    ...     out_cap = out_.getvalue().replace(os.linesep, '\n')
     >>> out_cap
     'foobar\n'
     >>> in_.closed and out_.closed and err_.closed
@@ -82,7 +82,7 @@ upon exiting the managed context.
     >>> import warnings
     >>> with stdio_mgr() as (in_, out_, err_):
     ...     warnings.warn("foo has no bar")
-    ...     err_cap = err_.getvalue()
+    ...     err_cap = err_.getvalue().replace(os.linesep, '\n')
     >>> err_cap
     '...UserWarning: foo has no bar\n...'
 
@@ -109,7 +109,7 @@ within the managed context as needed:
     ...     _ = in_.append(in_cap[:3] + '\n')
     ...     in_cap2 = input('??? ')
     ... 
-    ...     out_cap = out_.getvalue()
+    ...     out_cap = out_.getvalue().replace(os.linesep, '\n')
     >>> in_cap
     'foobar'
     >>> in_cap2

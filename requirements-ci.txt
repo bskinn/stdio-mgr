@@ -1,5 +1,6 @@
 codecov
 pytest
 pytest-cov
+pytest-timeout
 tox
 -e .
