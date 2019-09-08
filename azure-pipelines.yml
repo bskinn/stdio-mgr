@@ -26,7 +26,7 @@ jobs:
     pythons:
       pypy3:
         spec: 'pypy3'
-    images: [linux]
+    images: [linux, windows]
 
 - job: flake8
   pool:

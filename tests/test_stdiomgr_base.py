@@ -43,6 +43,7 @@ from stdio_mgr import stdio_mgr, StdioManager
 from stdio_mgr.stdio_mgr import _Tee
 
 _WARNING_ARGS_ERROR = "Please use pytest -p no:warnings or pytest --W error::Warning"
+_SKIP_WARNING_TESTS = "Skip tests using warnings when warnings are errors"
 
 
 def test_context_manager_instance():
@@ -119,7 +120,7 @@ def test_catch_warnings(
 ):
     """Confirm warnings under catch_warnings appear in stderr."""
     if warnings_are_errors:
-        pytest.skip("Skip warning tests")
+        pytest.skip(_SKIP_WARNING_TESTS)
 
     assert not check_warnings_plugin_enabled, _WARNING_ARGS_ERROR
 
@@ -166,7 +167,7 @@ def test_capture_instance_stderr_print(convert_newlines):
 def test_capture_stderr_warn(convert_newlines, warnings_are_errors):
     """Confirm stderr capture of warnings.warn."""
     if warnings_are_errors:
-        pytest.skip("Skip warning tests")
+        pytest.skip(_SKIP_WARNING_TESTS)
 
     with stdio_mgr() as (i, o, e):
         w = "This is a warning"
@@ -401,12 +402,12 @@ def test_stdin_closed(convert_newlines):
         with pytest.raises(ValueError) as err:
             i.getvalue()
 
-        assert str(err.value) == "I/O operation on closed file."
+        assert str(err.value).startswith("I/O operation on closed file")
 
         with pytest.raises(ValueError) as err:
             i.append("anything")
 
-        assert str(err.value) == "I/O operation on closed file."
+        assert str(err.value).startswith("I/O operation on closed file")
 
         assert convert_newlines("test str\n") == o.getvalue()
 
@@ -527,14 +528,14 @@ def test_stdout_access_buffer_after_close(convert_newlines):
         with pytest.raises(ValueError) as err:
             o.read()
 
-        assert str(err.value) == "I/O operation on closed file."
+        assert str(err.value).startswith("I/O operation on closed file")
 
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
         with pytest.raises(ValueError) as err:
             print("anything")
 
-        assert str(err.value) == "I/O operation on closed file."
+        assert str(err.value).startswith("I/O operation on closed file")
 
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
