@@ -21,6 +21,13 @@ jobs:
         spec: '3.7'
     images: [linux, windows, macOs]
 
+- template: azure-job.yml
+  parameters:
+    pythons:
+      pypy3:
+        spec: 'pypy3'
+    images: [linux]
+
 - job: flake8
   pool:
     vmImage: 'Ubuntu-16.04'
