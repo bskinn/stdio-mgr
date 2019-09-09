@@ -38,7 +38,12 @@ from io import (
     TextIOWrapper,
 )
 
-from stdio_mgr.types import AnyIOTuple, StdioTupleBase, TupleContextManager
+from stdio_mgr.types import (
+    AnyIOTuple,
+    MultiItemTuple,
+    StdioTupleBase,
+    TupleContextManager,
+)
 
 _RUNTIME_SYS_STREAMS = AnyIOTuple([sys.__stdin__, sys.__stdout__, sys.__stderr__])
 _IMPORT_SYS_STREAMS = AnyIOTuple([sys.stdin, sys.stdout, sys.stderr])
@@ -270,13 +275,14 @@ class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
     """
 
 
-class _MultiCloseContextManager(TupleContextManager):
+class _MultiCloseContextManager(TupleContextManager, MultiItemTuple):
     """Manage multiple closable members of a tuple."""
 
     def __enter__(self):
         """Enter context of all members."""
         with ExitStack() as stack:
-            all(map(stack.enter_context, self))
+            # If items are fake TextIOBase, they may not have __exit__
+            self.suppress_all(AttributeError, stack.enter_context)
 
             self._close_files = stack.pop_all().close
 

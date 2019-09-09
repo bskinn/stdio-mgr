@@ -26,7 +26,11 @@ import io
 
 import pytest
 
-from stdio_mgr.stdio_mgr import _IMPORT_SYS_STREAMS, _RUNTIME_SYS_STREAMS
+from stdio_mgr.stdio_mgr import (
+    _IMPORT_SYS_STREAMS,
+    _RUNTIME_SYS_STREAMS,
+    _MultiCloseContextManager,
+)
 from stdio_mgr.types import ClosingStdioTuple, FakeIOTuple, TextIOTuple
 
 
@@ -127,6 +131,11 @@ def test_incorrect_item_types():
             pass
 
     assert str(err.value) == "'str' object has no attribute 'close'"
+
+    # However _MultiCloseContextManager handles it because it catches
+    # them on entering each item, and not adding those item to the stack
+    with _MultiCloseContextManager(empty_string_tuple):
+        pass
 
     # TextIOTuple requires TextIOBase members
     with pytest.raises(ValueError) as err:
