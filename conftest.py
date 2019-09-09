@@ -44,7 +44,8 @@ def warnings_are_errors(pytestconfig):
     except ValueError:
         return False
 
-    return cmdline_filters and "error::Warning" in cmdline_filters
+    # Explicit bool conversion to quiet pytest 'don't assert None' warning
+    return bool(cmdline_filters and "error::Warning" in cmdline_filters)
 
 
 @pytest.fixture

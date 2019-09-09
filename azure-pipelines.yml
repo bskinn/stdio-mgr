@@ -21,6 +21,28 @@ jobs:
         spec: '3.7'
     images: [linux, windows, macOs]
 
+- template: azure-job.yml
+  parameters:
+    pythons:
+      pypy3:
+        name: 'pypy3_linux'
+        spec: 'pypy3'
+    images: [linux]
+
+- template: azure-job.yml
+  parameters:
+    pythons:
+      pypy3:
+        name: 'pypy3_win'
+        spec: 'pypy3'
+    images: [windows]
+    extra_cmds:
+      # pypy3 on Windows breaks for pytest>=5,
+      # due to problems with faulthandler
+      downgrade:
+        name: 'Downgrade pytest'
+        cmd: 'pip install "pytest<5"'
+
 - job: flake8
   pool:
     vmImage: 'Ubuntu-16.04'
