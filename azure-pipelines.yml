@@ -25,9 +25,20 @@ jobs:
   parameters:
     pythons:
       pypy3:
+        name: 'pypy3_linux'
         spec: 'pypy3'
-    images: [linux, windows]
+    images: [linux]
+
+- template: azure-job.yml
+  parameters:
+    pythons:
+      pypy3:
+        name: 'pypy3_win'
+        spec: 'pypy3'
+    images: [windows]
     extra_cmds:
+      # pypy3 on Windows breaks for pytest>=5,
+      # due to problems with faulthandler
       downgrade:
         name: 'Downgrade pytest'
         cmd: 'pip install "pytest<5"'
