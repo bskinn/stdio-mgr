@@ -26,6 +26,7 @@ interactions.
 
 """
 
+import abc
 import collections.abc
 import io
 import sys
@@ -35,7 +36,7 @@ import pytest
 
 from stdio_mgr import stdio_mgr, StdioManager
 from stdio_mgr.compat import AbstractContextManager
-from stdio_mgr.stdio_mgr import _Tee
+from stdio_mgr.stdio_mgr import _MultiCloseContextManager, _Tee
 
 _WARNING_ARGS_ERROR = "Please use pytest -p no:warnings or pytest --W error::Warning"
 _SKIP_WARNING_TESTS = "Skip tests using warnings when warnings are errors"
@@ -43,7 +44,7 @@ _IO_OP_CLOSED_FILE = {"I/O operation on closed file", "I/O operation on closed f
 _UNDERLYING_BUFFER_DETACHED = "underlying buffer has been detached"
 
 
-def test_context_manager_instance():
+def test_context_manager_instantiation():
     """Confirm StdioManager instance is a tuple and registered context manager."""
     cm = StdioManager()
 
@@ -64,6 +65,22 @@ def test_context_manager_instance():
 
     # Check copies are equal
     assert list(cm) == value_list
+
+
+def test_context_manager_mro():
+    """Confirm StdioManager instance has correct MRO."""
+    cm = StdioManager()
+
+    mro = cm.__class__.__mro__
+
+    assert mro == (
+        StdioManager,
+        _MultiCloseContextManager,
+        tuple,
+        AbstractContextManager,
+        abc.ABC,
+        object,
+    )
 
 
 def test_context_manager_instance_with():
