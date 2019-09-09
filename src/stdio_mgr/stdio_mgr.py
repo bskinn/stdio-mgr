@@ -38,12 +38,7 @@ from io import (
     TextIOWrapper,
 )
 
-# AbstractContextManager was introduced in Python 3.6
-# and may be used with typing.ContextManager.
-try:
-    from contextlib import AbstractContextManager
-except ImportError:  # pragma: no cover
-    AbstractContextManager = object
+from stdio_mgr.compat import AbstractContextManager
 
 
 class _PersistedBytesIO(BytesIO):
