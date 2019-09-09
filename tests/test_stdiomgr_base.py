@@ -35,8 +35,14 @@ import warnings
 import pytest
 
 from stdio_mgr import stdio_mgr, StdioManager
-from stdio_mgr.compat import AbstractContextManager
-from stdio_mgr.stdio_mgr import _MultiCloseContextManager, _Tee
+from stdio_mgr.stdio_mgr import _Tee
+from stdio_mgr.triple import IOTriple
+from stdio_mgr.types import (
+    AbstractContextManager,
+    MultiCloseContextManager,
+    MultiItemIterable,
+    TupleContextManager,
+)
 
 _WARNING_ARGS_ERROR = "Please use pytest -p no:warnings or pytest --W error::Warning"
 _SKIP_WARNING_TESTS = "Skip tests using warnings when warnings are errors"
@@ -75,10 +81,14 @@ def test_context_manager_mro():
 
     assert mro == (
         StdioManager,
-        _MultiCloseContextManager,
+        MultiCloseContextManager,
+        IOTriple,
+        TupleContextManager,
         tuple,
         AbstractContextManager,
         abc.ABC,
+        MultiItemIterable,
+        collections.abc.Iterable,
         object,
     )
 

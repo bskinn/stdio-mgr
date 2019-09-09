@@ -27,7 +27,7 @@ interactions.
 """
 
 import sys
-from contextlib import ExitStack, suppress
+from contextlib import suppress
 from io import (
     BufferedRandom,
     BufferedReader,
@@ -38,7 +38,11 @@ from io import (
     TextIOWrapper,
 )
 
-from stdio_mgr.compat import AbstractContextManager
+from stdio_mgr.triple import AutoIOTriple, IOTriple
+from stdio_mgr.types import MultiCloseContextManager
+
+_RUNTIME_SYS_STREAMS = AutoIOTriple([sys.__stdin__, sys.__stdout__, sys.__stderr__])
+_IMPORT_SYS_STREAMS = AutoIOTriple([sys.stdin, sys.stdout, sys.stderr])
 
 
 class _PersistedBytesIO(BytesIO):
@@ -267,24 +271,7 @@ class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
     """
 
 
-class _MultiCloseContextManager(tuple, AbstractContextManager):
-    """Manage multiple closable members of a tuple."""
-
-    def __enter__(self):
-        """Enter context of all members."""
-        with ExitStack() as stack:
-            all(map(stack.enter_context, self))
-
-            self._close_files = stack.pop_all().close
-
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        """Exit context, closing all members."""
-        self._close_files()
-
-
-class StdioManager(_MultiCloseContextManager):
+class StdioManager(MultiCloseContextManager, IOTriple):
     r"""Substitute temporary text buffers for `stdio` in a managed context.
 
     Context manager.
@@ -340,21 +327,6 @@ class StdioManager(_MultiCloseContextManager):
         self._close = close
 
         return self
-
-    @property
-    def stdin(self):
-        """Return capturing stdin stream."""
-        return self[0]
-
-    @property
-    def stdout(self):
-        """Return capturing stdout stream."""
-        return self[1]
-
-    @property
-    def stderr(self):
-        """Return capturing stderr stream."""
-        return self[2]
 
     def __enter__(self):
         """Enter context, replacing sys stdio objects with capturing streams."""
