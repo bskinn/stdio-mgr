@@ -27,6 +27,7 @@ jobs:
       pypy3:
         spec: 'pypy3'
     images: [linux, windows]
+    extra_cmds: ["pip install 'pytest<5'"]
 
 - job: flake8
   pool:
