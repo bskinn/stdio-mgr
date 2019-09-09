@@ -27,7 +27,10 @@ jobs:
       pypy3:
         spec: 'pypy3'
     images: [linux, windows]
-    extra_cmds: ["pip install 'pytest<5'"]
+    extra_cmds:
+      downgrade:
+        name: 'Downgrade pytest'
+        cmd: 'pip install "pytest<5"'
 
 - job: flake8
   pool:

@@ -34,7 +34,8 @@ jobs:
         displayName: Install CI requirements
 
       - ${{ each cmd in parameters.extra_cmds }}:
-        - script: ${{ cmd }}
+        - script: ${{ cmd.value.cmd }}
+          displayName: ${{ cmd.value.name }}
 
       - script: pytest
         displayName: Run pytest (Python ${{ python.value.spec }})
