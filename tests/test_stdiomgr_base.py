@@ -44,6 +44,8 @@ from stdio_mgr.stdio_mgr import _Tee
 
 _WARNING_ARGS_ERROR = "Please use pytest -p no:warnings or pytest --W error::Warning"
 _SKIP_WARNING_TESTS = "Skip tests using warnings when warnings are errors"
+_IO_OP_CLOSED_FILE = {"I/O operation on closed file", "I/O operation on closed file."}
+_UNDERLYING_BUFFER_DETACHED = "underlying buffer has been detached"
 
 
 def test_context_manager_instance():
@@ -362,7 +364,7 @@ def test_manual_close_detached_fails(convert_newlines):
         with pytest.raises(ValueError) as err:
             i.close()
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
         with pytest.raises(ValueError):
             i.closed
@@ -378,7 +380,7 @@ def test_manual_close_detached_fails(convert_newlines):
     with pytest.raises(ValueError) as err:
         i.close()
 
-    assert str(err.value) == "underlying buffer has been detached"
+    assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
     with pytest.raises(ValueError):
         i.closed
@@ -402,12 +404,12 @@ def test_stdin_closed(convert_newlines):
         with pytest.raises(ValueError) as err:
             i.getvalue()
 
-        assert str(err.value).startswith("I/O operation on closed file")
+        assert str(err.value) in _IO_OP_CLOSED_FILE
 
         with pytest.raises(ValueError) as err:
             i.append("anything")
 
-        assert str(err.value).startswith("I/O operation on closed file")
+        assert str(err.value) in _IO_OP_CLOSED_FILE
 
         assert convert_newlines("test str\n") == o.getvalue()
 
@@ -427,17 +429,17 @@ def test_stdin_detached(convert_newlines):
         with pytest.raises(ValueError) as err:
             i.read()
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
         with pytest.raises(ValueError) as err:
             i.getvalue()
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
         with pytest.raises(ValueError) as err:
             i.append("anything")
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
         assert convert_newlines("test str\n") == o.getvalue()
 
@@ -448,7 +450,7 @@ def test_stdin_detached(convert_newlines):
         with pytest.raises(ValueError) as err:
             i.closed
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
     assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
@@ -457,7 +459,7 @@ def test_stdin_detached(convert_newlines):
     with pytest.raises(ValueError) as err:
         i.closed
 
-    assert str(err.value) == "underlying buffer has been detached"
+    assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
     assert o.closed
     assert e.closed
@@ -483,14 +485,14 @@ def test_stdout_detached(convert_newlines):
         with pytest.raises(ValueError) as err:
             o.write("second test str\n")
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
         assert convert_newlines("test str\n") == o.getvalue()
 
         with pytest.raises(ValueError) as err:
             print("anything")
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
         f.write(convert_newlines("second test str\n").encode("utf8"))
         f.flush()
@@ -500,7 +502,7 @@ def test_stdout_detached(convert_newlines):
         with pytest.raises(ValueError) as err:
             o.closed
 
-        assert str(err.value) == "underlying buffer has been detached"
+        assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
     assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
@@ -509,7 +511,7 @@ def test_stdout_detached(convert_newlines):
     with pytest.raises(ValueError) as err:
         o.closed
 
-    assert str(err.value) == "underlying buffer has been detached"
+    assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
 
     assert i.closed
     assert e.closed
@@ -528,14 +530,14 @@ def test_stdout_access_buffer_after_close(convert_newlines):
         with pytest.raises(ValueError) as err:
             o.read()
 
-        assert str(err.value).startswith("I/O operation on closed file")
+        assert str(err.value) in _IO_OP_CLOSED_FILE
 
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
         with pytest.raises(ValueError) as err:
             print("anything")
 
-        assert str(err.value).startswith("I/O operation on closed file")
+        assert str(err.value) in _IO_OP_CLOSED_FILE
 
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 
