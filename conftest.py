@@ -74,7 +74,7 @@ def enable_warnings_plugin(request):
         yield
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="session")
 def add_stdio_mgr(doctest_namespace):
     """Add stdio_mgr to doctest namespace."""
     doctest_namespace["stdio_mgr"] = stdio_mgr
