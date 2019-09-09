@@ -31,15 +31,10 @@ import io
 import sys
 import warnings
 
-# AbstractContextManager was introduced in Python 3.6
-try:
-    from contextlib import AbstractContextManager
-except ImportError:
-    AbstractContextManager = object
-
 import pytest
 
 from stdio_mgr import stdio_mgr, StdioManager
+from stdio_mgr.compat import AbstractContextManager
 from stdio_mgr.stdio_mgr import _Tee
 
 _WARNING_ARGS_ERROR = "Please use pytest -p no:warnings or pytest --W error::Warning"
