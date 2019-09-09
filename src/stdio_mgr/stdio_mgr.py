@@ -286,14 +286,19 @@ class _MultiCloseContextManager(TupleContextManager, MultiItemTuple):
 
             self._close_files = stack.pop_all().close
 
-        return self
+        return super().__enter__()
+
+    def close(self):
+        """Close items opened in context."""
+        self._close_files()
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Exit context, closing all members."""
-        self._close_files()
+        self.close()
+        return super().__exit__(exc_type, exc_value, traceback)
 
 
-class StdioManager(_MultiCloseContextManager, StdioTupleBase):
+class StdioManagerBase(StdioTupleBase):
     r"""Substitute temporary text buffers for `stdio` in a managed context.
 
     Context manager.
@@ -344,11 +349,20 @@ class StdioManager(_MultiCloseContextManager, StdioTupleBase):
         stderr = out_cls()
         stdin = in_cls(stdout, in_str)
 
-        self = super(StdioManager, cls).__new__(cls, [stdin, stdout, stderr])
+        self = super(StdioManagerBase, cls).__new__(cls, [stdin, stdout, stderr])
 
         self._close = close
 
         return self
+
+    def close(self):
+        """Close files only if requested."""
+        if self._close:
+            super().close()
+
+
+class ReplaceSysIoContextManager(StdioTupleBase):
+    """Replace sys stdio with members of the tuple."""
 
     def __enter__(self):
         """Enter context, replacing sys stdio objects with capturing streams."""
@@ -364,8 +378,11 @@ class StdioManager(_MultiCloseContextManager, StdioTupleBase):
         """Exit context, closing files and restoring state of sys module."""
         (sys.stdin, sys.stdout, sys.stderr) = self._prior_streams
 
-        if self._close:
-            super().__exit__(exc_type, exc_value, traceback)
+        return super().__exit__(exc_type, exc_value, traceback)
 
 
-stdio_mgr = StdioManager
+class ReplaceBufferContextManager(ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager):
+    __doc__ = StdioManagerBase.__doc__
+
+
+stdio_mgr = StdioManager = ReplaceBufferContextManager

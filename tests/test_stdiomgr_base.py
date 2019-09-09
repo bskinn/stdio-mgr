@@ -36,7 +36,13 @@ import pytest
 
 from stdio_mgr import stdio_mgr, StdioManager
 from stdio_mgr.compat import AbstractContextManager
-from stdio_mgr.stdio_mgr import _MultiCloseContextManager, _Tee
+from stdio_mgr.stdio_mgr import (
+    _MultiCloseContextManager,
+    _Tee,
+    ReplaceBufferContextManager,
+    ReplaceSysIoContextManager,
+    StdioManagerBase,
+)
 from stdio_mgr.types import MultiItemTuple, StdioTupleBase, TupleContextManager
 
 _WARNING_ARGS_ERROR = "Please use pytest -p no:warnings or pytest --W error::Warning"
@@ -75,9 +81,11 @@ def test_context_manager_mro():
     mro = cm.__class__.__mro__
 
     assert mro == (
-        StdioManager,
-        _MultiCloseContextManager,
-        StdioTupleBase,
+        ReplaceBufferContextManager,
+        ReplaceSysIoContextManager,   # __enter__ & __exit__
+        StdioManagerBase,  # __new__, and close()
+        StdioTupleBase,  # __new___
+        _MultiCloseContextManager,  # __enter__ & __exit__ & close()
         TupleContextManager,
         tuple,
         AbstractContextManager,
