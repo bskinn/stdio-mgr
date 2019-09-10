@@ -37,5 +37,5 @@ jobs:
         - script: ${{ cmd.value.cmd }}
           displayName: ${{ cmd.value.name }}
 
-      - script: pytest
+      - script: python -u -m pytest
         displayName: Run pytest (Python ${{ python.value.spec }})
