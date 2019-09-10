@@ -59,8 +59,11 @@ jobs:
     - script: sh -c 'cd micropython/ports/unix && make axtls && make'
       displayName: Make MicroPython
 
-    - script: micropython/ports/unix/micropython -c 'import upip; upip.install("pytest")'
-      displayName: Install pytest
+    - script: micropython/ports/unix/micropython -m ensurepip
+      displayName: Install pip
+
+    - script: micropython/ports/unix/micropython -m pip install wheel pytest
+      displayName: Install dependencies
 
     - script: micropython/ports/unix/micropython -m pytest
       displayName: Run tests
