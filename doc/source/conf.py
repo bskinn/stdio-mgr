@@ -83,5 +83,18 @@ rst_epilog = """
 
 """
 
+# inheritance_diagram settings
+inheritance_graph_attrs = {
+    "rankdir": "TB",
+    "size": '"2000!"',
+}
+
+inheritance_node_attrs = {
+    "fontsize": 11,
+}
+
+graphviz_output_format = "svg"
+
+
 # intersphinx docset mappings
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
