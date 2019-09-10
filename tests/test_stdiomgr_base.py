@@ -88,7 +88,7 @@ def test_context_manager_mro(stdio_mgr):
     if stdio_mgr is BufferReplaceStdioManager:
         assert mro == (
             BufferReplaceStdioManager,
-            ReplaceSysIoContextManager,   # __enter__ & __exit__
+            ReplaceSysIoContextManager,  # __enter__ & __exit__
             StdioManagerBase,  # __new__, and close()
             StdioTupleBase,  # __new___
             _MultiCloseContextManager,  # __enter__ & __exit__ & close()
@@ -103,7 +103,7 @@ def test_context_manager_mro(stdio_mgr):
     elif stdio_mgr is BufferInjectStdioManager:
         assert mro == (
             BufferInjectStdioManager,
-            InjectSysIoContextManager,   # __enter__ & __exit__
+            InjectSysIoContextManager,  # __enter__ & __exit__
             StdioManagerBase,  # __new__, and close()
             StdioTupleBase,  # __new___
             _MultiCloseContextManager,  # __enter__ & __exit__ & close()
@@ -603,7 +603,6 @@ def test_stdout_access_buffer_after_close(stdio_mgr, convert_newlines):
                 print("anything")
 
             assert str(err.value) in _WRITE_TO_CLOSED_FILE
-
 
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
 

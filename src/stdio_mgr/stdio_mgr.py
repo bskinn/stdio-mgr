@@ -494,7 +494,9 @@ class InjectSysIoContextManager(StdioTupleBase):
         return super().__exit__(exc_type, exc_value, traceback)
 
 
-class BufferReplaceStdioManager(ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager):
+class BufferReplaceStdioManager(
+    ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager
+):
     __doc__ = StdioManagerBase.__doc__
 
 
@@ -548,7 +550,7 @@ def _current_streams():
 
 def _choose_inject_impl(currentio=None):
     if not currentio:
-       currentio = _current_streams()
+        currentio = _current_streams()
 
     if environ.get("PYTHONUNBUFFERED"):
         return FileInjectStdioManager
