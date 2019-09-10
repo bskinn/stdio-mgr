@@ -37,6 +37,7 @@ from io import (
     TextIOBase,
     TextIOWrapper,
 )
+from tempfile import TemporaryFile
 
 from stdio_mgr.types import (
     AnyIOTuple,
@@ -67,6 +68,41 @@ class _PersistedBytesIO(BytesIO):
         super().close()
 
 
+class _PersistedFileIO(FileIO):
+    """Class to persist the value of a file after close.
+
+    A copy of the bytes value is given to a callback prior to
+    the :meth:`~io.IOBase.close`.
+    """
+
+    def __new__(cls, closure_callback):
+        """Store callback invoked before close."""
+        f = TemporaryFile(mode="w+b")
+        self = super().__new__(cls, f.fileno(), mode="w+b")
+        self._f = f
+        self._f.__enter__()
+        self._callback = closure_callback
+        return self
+
+    def __init__(self, closure_callback):
+        """Invoke FileIO()."""
+        super().__init__(self._f.fileno(), mode="w+b")
+
+    def getvalue(self):
+        """Send buffer to callback and close."""
+        pos = self.tell()
+        self.seek(0, SEEK_SET)
+        retval = self.read()
+        self.seek(pos, SEEK_SET)
+        return retval
+
+    def close(self):
+        """Send buffer to callback and close."""
+        # This isnt being called in unbufferedio mode
+        self._callback(self.getvalue())
+        # Do not call super close()
+
+
 class RandomTextIO(TextIOWrapper):
     """Class to capture writes to a buffer even when detached.
 
@@ -85,8 +121,10 @@ class RandomTextIO(TextIOWrapper):
 
     def __init__(self):
         """Initialise buffer with utf-8 encoding."""
-        self._stream = _PersistedBytesIO(self._set_closed_buf)
+        if not hasattr(self, "_stream"):
+            self._stream = _PersistedBytesIO(self._set_closed_buf)
         self._buf = BufferedRandom(self._stream)
+        self._closed_buf = None
         super().__init__(self._buf, encoding="utf-8")
 
     def write(self, *args, **kwargs):
@@ -99,10 +137,27 @@ class RandomTextIO(TextIOWrapper):
 
     def getvalue(self):
         """Obtain buffer of text sent to the stream."""
-        if self._stream.closed:
+        if self._closed_buf is not None:
             return self._closed_buf.decode(self.encoding)
         else:
             return self._stream.getvalue().decode(self.encoding)
+
+    def _save_value(self):
+        self._closed_buf = self._stream.getvalue()
+
+
+class RandomFileIO(RandomTextIO):
+    """Class to capture writes to a file even when detached."""
+
+    def __init__(self):
+        """Initialise buffer with utf-8 encoding."""
+        self._stream = _PersistedFileIO(self._set_closed_buf)
+        super().__init__()
+
+    def close(self):
+        """Detach buffer on close, to more closely emulate close."""
+        self._save_value()
+        self.detach()
 
 
 class _Tee(TextIOWrapper):
