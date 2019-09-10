@@ -93,6 +93,14 @@ inheritance_node_attrs = {
     "fontsize": 11,
 }
 
+inheritance_alias = {
+    "_io.BytesIO": "io.BytesIO",
+    "_io._BufferedIOBase": "io.BufferedIOBase",
+    "_io._IOBase": "io.IOBase",
+    "_io.TextIOWrapper": "io.TextIOWrapper",
+    "_io._TextIOBase": "io.TextIOBase",
+}
+
 graphviz_output_format = "svg"
 
 
