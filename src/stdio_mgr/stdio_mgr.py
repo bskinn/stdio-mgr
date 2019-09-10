@@ -494,7 +494,7 @@ class InjectSysIoContextManager(StdioTupleBase):
         return super().__exit__(exc_type, exc_value, traceback)
 
 
-class BufferReplaceStdioManager(
+class BufferReplaceStdioManager(  # noqa: D101
     ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager
 ):
     __doc__ = StdioManagerBase.__doc__
@@ -526,6 +526,8 @@ class FileInjectStdioManager(InjectSysIoContextManager, StdioManagerBase):  # no
 class BufferInjectStdioManager(  # noqa: D101
     InjectSysIoContextManager, StdioManagerBase, _MultiCloseContextManager
 ):
+    __doc__ = StdioManagerBase.__doc__
+
     def close(self):
         """Close files only if requested."""
         if self._close:

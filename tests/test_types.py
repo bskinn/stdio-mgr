@@ -28,8 +28,8 @@ import pytest
 
 from stdio_mgr.stdio_mgr import (
     _IMPORT_SYS_STREAMS,
-    _RUNTIME_SYS_STREAMS,
     _MultiCloseContextManager,
+    _RUNTIME_SYS_STREAMS,
 )
 from stdio_mgr.types import ClosingStdioTuple, FakeIOTuple, TextIOTuple
 
