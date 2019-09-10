@@ -115,6 +115,20 @@ def test_context_manager_mro(stdio_mgr):
             collections.abc.Iterable,
             object,
         )
+    elif stdio_mgr is FileInjectStdioManager:
+        assert mro == (
+            FileInjectStdioManager,
+            InjectSysIoContextManager,  # __enter__ & __exit__
+            StdioManagerBase,  # __new__, and close()
+            StdioTupleBase,  # __new___
+            TupleContextManager,
+            tuple,
+            AbstractContextManager,
+            abc.ABC,
+            MultiItemTuple,
+            collections.abc.Iterable,
+            object,
+        )
 
 
 def test_context_manager_instance_with(stdio_mgr):
