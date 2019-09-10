@@ -56,8 +56,8 @@ jobs:
     - script: sh -c 'cd micropython/mpy-cross && make'
       displayName: Make mpy-cross
 
-    - script: sh -c 'cd micropython/ports/unix && make axtls && make'
-      displayName: Make MicroPython
+    - script: sh -c 'cd micropython/ports/unix && make axtls MICROPY_HEAP_SIZE=20971520 && make MICROPY_HEAP_SIZE=20971520'
+      displayName: Make MicroPython (20MB heap)
 
     - script: curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
       displayName: Retrieve get-pip.py
