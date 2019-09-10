@@ -589,14 +589,11 @@ def test_stdout_access_buffer_after_close(stdio_mgr, convert_newlines):
             o.read()
 
         if stdio_mgr is FileInjectStdioManager:
-            assert str(err.value) == _BUFFER_DETACHED_MSG
+            assert str(err.value) == _UNDERLYING_BUFFER_DETACHED
         else:
             assert str(err.value) in _IO_OP_CLOSED_FILE
 
         assert convert_newlines("test str\nsecond test str\n") == o.getvalue()
-
-        with pytest.raises(ValueError) as err:
-            print("anything")
 
         # because the real sys handle isnt closed, print still works.
         # To workaround, we could override `print`, leaving sys.stdout.write
