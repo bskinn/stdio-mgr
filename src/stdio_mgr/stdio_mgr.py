@@ -59,6 +59,7 @@ class _PersistedBytesIO(BytesIO):
     def __init__(self, closure_callback):
         """Store callback invoked before close."""
         self._callback = closure_callback
+        super().__init__()
 
     def close(self):
         """Send buffer to callback and close."""
