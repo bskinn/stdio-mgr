@@ -38,6 +38,7 @@ from io import (
     TextIOBase,
     TextIOWrapper,
 )
+from os import environ
 from tempfile import TemporaryFile
 
 from stdio_mgr.types import (
@@ -332,6 +333,13 @@ class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
     """
 
 
+class SafeCloseRandomFileIO(_SafeCloseIOBase, RandomFileIO):
+    """Class to capture writes to a buffer even when detached, and safely close.
+
+    Subclass of :class:`~_SafeCloseIOBase` and :class:`~RandomFileIO`.
+    """
+
+
 class _MultiCloseContextManager(TupleContextManager, MultiItemTuple):
     """Manage multiple closable members of a tuple."""
 
@@ -395,10 +403,14 @@ class StdioManagerBase(StdioTupleBase):
 
     def __new__(cls, in_str="", close=True):
         """Instantiate new context manager that emulates namedtuple."""
-        if close:
-            out_cls = SafeCloseRandomTextIO
+        if close or not cls._RAW:
+            if not cls._RAW:
+                out_cls = SafeCloseRandomFileIO
+            else:
+                out_cls = SafeCloseRandomTextIO
             in_cls = SafeCloseTeeStdin
         else:
+            # no unbufferedio equivalent exists yet
             out_cls = RandomTextIO
             in_cls = TeeStdin
 
@@ -421,6 +433,8 @@ class StdioManagerBase(StdioTupleBase):
 class ReplaceSysIoContextManager(StdioTupleBase):
     """Replace sys stdio with members of the tuple."""
 
+    _RAW = True
+
     def __enter__(self):
         """Enter context, replacing sys stdio objects with capturing streams."""
         self._prior_streams = (sys.stdin, sys.stdout, sys.stderr)
@@ -438,8 +452,127 @@ class ReplaceSysIoContextManager(StdioTupleBase):
         return super().__exit__(exc_type, exc_value, traceback)
 
 
+class InjectSysIoContextManager(StdioTupleBase):
+    """Replace sys stdio with members of the tuple."""
+
+    _RAW = True
+
+    def __enter__(self):
+        """Enter context, replacing sys stdio objects with capturing streams."""
+        self._prior_stdin = sys.stdin
+        if self._RAW:
+            self._prior_out = sys.stdout.buffer.raw, sys.stderr.buffer.raw
+            new_stdout = self.stdout.buffer.raw
+            new_stderr = self.stderr.buffer.raw
+        else:
+            self._prior_out = (sys.stdout.fileno(), sys.stderr.fileno())
+            new_stdout = self.stdout.fileno()
+            new_stderr = self.stderr.fileno()
+
+        super().__enter__()
+
+        sys.stdin = self.stdin
+        sys.stdout.buffer.__init__(new_stdout)
+        sys.stderr.buffer.__init__(new_stderr)
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit context, restoring state of sys module."""
+        if not self._RAW:
+            self.stdout._save_value()
+            self.stderr._save_value()
+
+        sys.stdin = self._prior_stdin
+        if self._RAW:
+            sys.stdout.buffer.__init__(self._prior_out[0])
+            sys.stderr.buffer.__init__(self._prior_out[1])
+        else:
+            sys.stdout.buffer.__init__(self._prior_out[0], mode="wb", closefd=False)
+            sys.stderr.buffer.__init__(self._prior_out[1], mode="wb", closefd=False)
+
+        return super().__exit__(exc_type, exc_value, traceback)
+
+
 class BufferReplaceStdioManager(ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager):
     __doc__ = StdioManagerBase.__doc__
 
 
-stdio_mgr = StdioManager = BufferReplaceStdioManager
+class FileInjectStdioManager(InjectSysIoContextManager, StdioManagerBase):  # noqa: D101
+    __doc__ = StdioManagerBase.__doc__
+
+    _RAW = False
+
+    def close(self):
+        """Dont close any streams."""
+
+    def __del__(self):
+        """Delete temporary files."""
+        try:
+            self.stdout._stream._f.close()
+        except (OSError, ValueError):
+            pass
+        try:
+            self.stderr._stream._f.close()
+        except (OSError, ValueError):
+            pass
+
+        del self.stdout._stream._f
+        del self.stderr._stream._f
+
+
+class BufferInjectStdioManager(  # noqa: D101
+    InjectSysIoContextManager, StdioManagerBase, _MultiCloseContextManager
+):
+    def close(self):
+        """Close files only if requested."""
+        if self._close:
+            return super().close()
+
+    def __enter__(self):
+        """Enter context of all members."""
+        with ExitStack() as stack:
+            with suppress(AttributeError):
+                stack.enter_context(self.stdout)
+            with suppress(AttributeError):
+                stack.enter_context(self.stderr)
+
+            self._close_files = stack.pop_all().close
+
+        return super().__enter__()
+
+
+def _current_streams():
+    return AnyIOTuple([sys.stdin, sys.stdout, sys.stderr])
+
+
+def _choose_inject_impl(currentio=None):
+    if not currentio:
+       currentio = _current_streams()
+
+    if environ.get("PYTHONUNBUFFERED"):
+        return FileInjectStdioManager
+
+    try:
+        currentio.stdout.buffer.raw
+    except AttributeError:
+        pass
+    else:
+        return BufferInjectStdioManager
+
+    return FileInjectStdioManager
+
+
+def _choose_impl(currentio=None):
+    if not currentio:
+        currentio = _current_streams()
+
+    try:
+        currentio.stdin.buffer
+    except AttributeError:
+        return BufferReplaceStdioManager
+
+    return _choose_inject_impl(currentio)
+
+
+stdio_mgr = StdioManager = _choose_impl(_IMPORT_SYS_STREAMS)

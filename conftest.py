@@ -34,7 +34,7 @@ from io import TextIOBase
 import _pytest.warnings
 import pytest
 
-from stdio_mgr.stdio_mgr import BufferReplaceStdioManager
+from stdio_mgr.stdio_mgr import _choose_inject_impl, BufferReplaceStdioManager
 
 
 @pytest.fixture(scope="session")
@@ -80,7 +80,10 @@ def pytest_generate_tests(metafunc):
     if "stdio_mgr" not in metafunc.fixturenames:
         return
 
-    impls = [BufferReplaceStdioManager]
+    if isinstance(sys.stdin, TextIOBase):
+        impls = [BufferReplaceStdioManager, _choose_inject_impl()]
+    else:
+        impls = [BufferReplaceStdioManager]
 
     metafunc.parametrize("stdio_mgr", impls)
 
