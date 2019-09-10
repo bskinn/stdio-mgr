@@ -32,6 +32,7 @@ from io import (
     BufferedRandom,
     BufferedReader,
     BytesIO,
+    FileIO,
     SEEK_END,
     SEEK_SET,
     TextIOBase,
@@ -437,8 +438,8 @@ class ReplaceSysIoContextManager(StdioTupleBase):
         return super().__exit__(exc_type, exc_value, traceback)
 
 
-class ReplaceBufferContextManager(ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager):
+class BufferReplaceStdioManager(ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager):
     __doc__ = StdioManagerBase.__doc__
 
 
-stdio_mgr = StdioManager = ReplaceBufferContextManager
+stdio_mgr = StdioManager = BufferReplaceStdioManager
