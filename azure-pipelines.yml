@@ -86,6 +86,10 @@ jobs:
       inputs:
         versionSpec: '3.7'
 
+    # Needed for the inheritance diagram
+    - script: sudo apt-get install -y graphviz graphviz-dev libgraphviz-dev
+      displayName: Install graphviz
+
     - script: pip install -r requirements-doc.txt
       displayName: Install documentation requirements
 
@@ -102,6 +106,10 @@ jobs:
 
     - script: pip install -r requirements-doc.txt
       displayName: Install documentation requirements
+
+    # Needed for the inheritance diagram
+    - script: sudo apt-get install -y graphviz graphviz-dev libgraphviz-dev
+      displayName: Install graphviz
 
     - script: cd doc && make html O=-Wn
       displayName: Build docs, erroring on any build warning
