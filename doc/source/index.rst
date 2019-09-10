@@ -14,6 +14,7 @@ Welcome to stdio-mgr!
 
     userguide
     api
+    inheritance
 
 
 Indices and tables

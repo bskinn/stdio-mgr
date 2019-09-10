@@ -36,6 +36,8 @@ version = re.match(r"\d+\.\d+", release).group(0)
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
+    "sphinx.ext.graphviz",
+    "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
 ]
@@ -80,6 +82,27 @@ rst_epilog = """
 .. _license_txt: https://github.com/bskinn/stdio-mgr/blob/master/LICENSE.txt
 
 """
+
+# inheritance_diagram settings
+inheritance_graph_attrs = {
+    "rankdir": "TB",
+    "size": '"2000!"',
+}
+
+inheritance_node_attrs = {
+    "fontsize": 11,
+}
+
+inheritance_alias = {
+    "_io.BytesIO": "io.BytesIO",
+    "_io._BufferedIOBase": "io.BufferedIOBase",
+    "_io._IOBase": "io.IOBase",
+    "_io.TextIOWrapper": "io.TextIOWrapper",
+    "_io._TextIOBase": "io.TextIOBase",
+}
+
+graphviz_output_format = "svg"
+
 
 # intersphinx docset mappings
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
