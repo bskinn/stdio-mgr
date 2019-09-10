@@ -47,7 +47,7 @@ jobs:
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
-    - script: sudo apt-get install -y build-essential libreadline-dev libffi-dev git pkg-config gcc-arm-none-eabi libnewlib-arm-none-eabi
+    - script: sudo apt-get install -y build-essential curl libreadline-dev libffi-dev git pkg-config gcc-arm-none-eabi libnewlib-arm-none-eabi
       displayName: Install micropython dependencies
 
     - script: git clone --recurse-submodules https://github.com/micropython/micropython.git micropython
@@ -59,10 +59,13 @@ jobs:
     - script: sh -c 'cd micropython/ports/unix && make axtls && make'
       displayName: Make MicroPython
 
-    - script: micropython/ports/unix/micropython -m ensurepip
+    - script: curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      displayName: Retrieve get-pip.py
+
+    - script: micropython/ports/unix/micropython get-pip.py
       displayName: Install pip
 
-    - script: micropython/ports/unix/micropython -m pip install wheel pytest
+    - script: micropython/ports/unix/micropython -m pip install pytest
       displayName: Install dependencies
 
     - script: micropython/ports/unix/micropython -m pytest
