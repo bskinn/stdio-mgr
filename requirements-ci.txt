@@ -1,5 +1,5 @@
 codecov
-importlib_metadata!=0.21
+importlib_metadata
 pytest
 pytest-cov
 pytest-timeout
