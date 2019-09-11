@@ -75,7 +75,7 @@ jobs:
     - script: pip install -r requirements-ci.txt
       displayName: Install CI requirements
 
-    - script: pytest -v -W error::Warning
+    - script: PYTHONUNBUFFERED=1 pytest -v -W error::Warning
       displayName: Run pytest, exposing underlying warnings (Python 3.7)
 
 - job: docs_display_warnings

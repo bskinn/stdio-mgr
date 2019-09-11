@@ -32,18 +32,24 @@ from io import (
     BufferedRandom,
     BufferedReader,
     BytesIO,
+    FileIO,
     SEEK_END,
     SEEK_SET,
     TextIOBase,
     TextIOWrapper,
 )
+from os import environ
+from tempfile import TemporaryFile
 
-# AbstractContextManager was introduced in Python 3.6
-# and may be used with typing.ContextManager.
-try:
-    from contextlib import AbstractContextManager
-except ImportError:  # pragma: no cover
-    AbstractContextManager = object
+from stdio_mgr.types import (
+    AnyIOTuple,
+    MultiItemTuple,
+    StdioTupleBase,
+    TupleContextManager,
+)
+
+_RUNTIME_SYS_STREAMS = AnyIOTuple([sys.__stdin__, sys.__stdout__, sys.__stderr__])
+_IMPORT_SYS_STREAMS = AnyIOTuple([sys.stdin, sys.stdout, sys.stderr])
 
 
 class _PersistedBytesIO(BytesIO):
@@ -56,11 +62,47 @@ class _PersistedBytesIO(BytesIO):
     def __init__(self, closure_callback):
         """Store callback invoked before close."""
         self._callback = closure_callback
+        super().__init__()
 
     def close(self):
         """Send buffer to callback and close."""
         self._callback(self.getvalue())
         super().close()
+
+
+class _PersistedFileIO(FileIO):
+    """Class to persist the value of a file after close.
+
+    A copy of the bytes value is given to a callback prior to
+    the :meth:`~io.IOBase.close`.
+    """
+
+    def __new__(cls, closure_callback):
+        """Store callback invoked before close."""
+        f = TemporaryFile(mode="w+b")
+        self = super().__new__(cls, f.fileno(), mode="w+b")
+        self._f = f
+        self._f.__enter__()
+        self._callback = closure_callback
+        return self
+
+    def __init__(self, closure_callback):
+        """Invoke FileIO()."""
+        super().__init__(self._f.fileno(), mode="w+b")
+
+    def getvalue(self):
+        """Send buffer to callback and close."""
+        pos = self.tell()
+        self.seek(0, SEEK_SET)
+        retval = self.read()
+        self.seek(pos, SEEK_SET)
+        return retval
+
+    def close(self):
+        """Send buffer to callback and close."""
+        # This isnt being called in unbufferedio mode
+        self._callback(self.getvalue())
+        # Do not call super close()
 
 
 class RandomTextIO(TextIOWrapper):
@@ -81,8 +123,10 @@ class RandomTextIO(TextIOWrapper):
 
     def __init__(self):
         """Initialise buffer with utf-8 encoding."""
-        self._stream = _PersistedBytesIO(self._set_closed_buf)
+        if not hasattr(self, "_stream"):
+            self._stream = _PersistedBytesIO(self._set_closed_buf)
         self._buf = BufferedRandom(self._stream)
+        self._closed_buf = None
         super().__init__(self._buf, encoding="utf-8")
 
     def write(self, *args, **kwargs):
@@ -95,10 +139,27 @@ class RandomTextIO(TextIOWrapper):
 
     def getvalue(self):
         """Obtain buffer of text sent to the stream."""
-        if self._stream.closed:
+        if self._closed_buf is not None:
             return self._closed_buf.decode(self.encoding)
         else:
             return self._stream.getvalue().decode(self.encoding)
+
+    def _save_value(self):
+        self._closed_buf = self._stream.getvalue()
+
+
+class RandomFileIO(RandomTextIO):
+    """Class to capture writes to a file even when detached."""
+
+    def __init__(self):
+        """Initialise buffer with utf-8 encoding."""
+        self._stream = _PersistedFileIO(self._set_closed_buf)
+        super().__init__()
+
+    def close(self):
+        """Detach buffer on close, to more closely emulate close."""
+        self._save_value()
+        self.detach()
 
 
 class _Tee(TextIOWrapper):
@@ -272,24 +333,37 @@ class SafeCloseTeeStdin(_SafeCloseIOBase, TeeStdin):
     """
 
 
-class _MultiCloseContextManager(tuple, AbstractContextManager):
+class SafeCloseRandomFileIO(_SafeCloseIOBase, RandomFileIO):
+    """Class to capture writes to a buffer even when detached, and safely close.
+
+    Subclass of :class:`~_SafeCloseIOBase` and :class:`~RandomFileIO`.
+    """
+
+
+class _MultiCloseContextManager(TupleContextManager, MultiItemTuple):
     """Manage multiple closable members of a tuple."""
 
     def __enter__(self):
         """Enter context of all members."""
         with ExitStack() as stack:
-            all(map(stack.enter_context, self))
+            # If items are fake TextIOBase, they may not have __exit__
+            self.suppress_all(AttributeError, stack.enter_context)
 
             self._close_files = stack.pop_all().close
 
-        return self
+        return super().__enter__()
+
+    def close(self):
+        """Close items opened in context."""
+        self._close_files()
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Exit context, closing all members."""
-        self._close_files()
+        self.close()
+        return super().__exit__(exc_type, exc_value, traceback)
 
 
-class StdioManager(_MultiCloseContextManager):
+class StdioManagerBase(StdioTupleBase):
     r"""Substitute temporary text buffers for `stdio` in a managed context.
 
     Context manager.
@@ -329,10 +403,14 @@ class StdioManager(_MultiCloseContextManager):
 
     def __new__(cls, in_str="", close=True):
         """Instantiate new context manager that emulates namedtuple."""
-        if close:
-            out_cls = SafeCloseRandomTextIO
+        if close or not cls._RAW:
+            if not cls._RAW:
+                out_cls = SafeCloseRandomFileIO
+            else:
+                out_cls = SafeCloseRandomTextIO
             in_cls = SafeCloseTeeStdin
         else:
+            # no unbufferedio equivalent exists yet
             out_cls = RandomTextIO
             in_cls = TeeStdin
 
@@ -340,26 +418,22 @@ class StdioManager(_MultiCloseContextManager):
         stderr = out_cls()
         stdin = in_cls(stdout, in_str)
 
-        self = super(StdioManager, cls).__new__(cls, [stdin, stdout, stderr])
+        self = super(StdioManagerBase, cls).__new__(cls, [stdin, stdout, stderr])
 
         self._close = close
 
         return self
 
-    @property
-    def stdin(self):
-        """Return capturing stdin stream."""
-        return self[0]
+    def close(self):
+        """Close files only if requested."""
+        if self._close:
+            super().close()
 
-    @property
-    def stdout(self):
-        """Return capturing stdout stream."""
-        return self[1]
 
-    @property
-    def stderr(self):
-        """Return capturing stderr stream."""
-        return self[2]
+class ReplaceSysIoContextManager(StdioTupleBase):
+    """Replace sys stdio with members of the tuple."""
+
+    _RAW = True
 
     def __enter__(self):
         """Enter context, replacing sys stdio objects with capturing streams."""
@@ -375,8 +449,134 @@ class StdioManager(_MultiCloseContextManager):
         """Exit context, closing files and restoring state of sys module."""
         (sys.stdin, sys.stdout, sys.stderr) = self._prior_streams
 
+        return super().__exit__(exc_type, exc_value, traceback)
+
+
+class InjectSysIoContextManager(StdioTupleBase):
+    """Replace sys stdio with members of the tuple."""
+
+    _RAW = True
+
+    def __enter__(self):
+        """Enter context, replacing sys stdio objects with capturing streams."""
+        self._prior_stdin = sys.stdin
+        if self._RAW:
+            self._prior_out = sys.stdout.buffer.raw, sys.stderr.buffer.raw
+            new_stdout = self.stdout.buffer.raw
+            new_stderr = self.stderr.buffer.raw
+        else:
+            self._prior_out = (sys.stdout.fileno(), sys.stderr.fileno())
+            new_stdout = self.stdout.fileno()
+            new_stderr = self.stderr.fileno()
+
+        super().__enter__()
+
+        sys.stdin = self.stdin
+        sys.stdout.buffer.__init__(new_stdout)
+        sys.stderr.buffer.__init__(new_stderr)
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit context, restoring state of sys module."""
+        if not self._RAW:
+            self.stdout._save_value()
+            self.stderr._save_value()
+
+        sys.stdin = self._prior_stdin
+        if self._RAW:
+            sys.stdout.buffer.__init__(self._prior_out[0])
+            sys.stderr.buffer.__init__(self._prior_out[1])
+        else:
+            sys.stdout.buffer.__init__(self._prior_out[0], mode="wb", closefd=False)
+            sys.stderr.buffer.__init__(self._prior_out[1], mode="wb", closefd=False)
+
+        return super().__exit__(exc_type, exc_value, traceback)
+
+
+class BufferReplaceStdioManager(  # noqa: D101
+    ReplaceSysIoContextManager, StdioManagerBase, _MultiCloseContextManager
+):
+    __doc__ = StdioManagerBase.__doc__
+
+
+class FileInjectStdioManager(InjectSysIoContextManager, StdioManagerBase):  # noqa: D101
+    __doc__ = StdioManagerBase.__doc__
+
+    _RAW = False
+
+    def close(self):
+        """Dont close any streams."""
+
+    def __del__(self):
+        """Delete temporary files."""
+        try:
+            self.stdout._stream._f.close()
+        except (OSError, ValueError):
+            pass
+        try:
+            self.stderr._stream._f.close()
+        except (OSError, ValueError):
+            pass
+
+        del self.stdout._stream._f
+        del self.stderr._stream._f
+
+
+class BufferInjectStdioManager(  # noqa: D101
+    InjectSysIoContextManager, StdioManagerBase, _MultiCloseContextManager
+):
+    __doc__ = StdioManagerBase.__doc__
+
+    def close(self):
+        """Close files only if requested."""
         if self._close:
-            super().__exit__(exc_type, exc_value, traceback)
+            return super().close()
+
+    def __enter__(self):
+        """Enter context of all members."""
+        with ExitStack() as stack:
+            with suppress(AttributeError):
+                stack.enter_context(self.stdout)
+            with suppress(AttributeError):
+                stack.enter_context(self.stderr)
+
+            self._close_files = stack.pop_all().close
+
+        return super().__enter__()
 
 
-stdio_mgr = StdioManager
+def _current_streams():
+    return AnyIOTuple([sys.stdin, sys.stdout, sys.stderr])
+
+
+def _choose_inject_impl(currentio=None):
+    if not currentio:
+        currentio = _current_streams()
+
+    if environ.get("PYTHONUNBUFFERED"):
+        return FileInjectStdioManager
+
+    try:
+        currentio.stdout.buffer.raw
+    except AttributeError:
+        pass
+    else:
+        return BufferInjectStdioManager
+
+    return FileInjectStdioManager
+
+
+def _choose_impl(currentio=None):
+    if not currentio:
+        currentio = _current_streams()
+
+    try:
+        currentio.stdin.buffer
+    except AttributeError:
+        return BufferReplaceStdioManager
+
+    return _choose_inject_impl(currentio)
+
+
+stdio_mgr = StdioManager = _choose_impl(_IMPORT_SYS_STREAMS)

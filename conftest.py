@@ -29,11 +29,12 @@ interactions.
 import os
 import sys
 import warnings
+from io import TextIOBase
 
 import _pytest.warnings
 import pytest
 
-from stdio_mgr import stdio_mgr
+from stdio_mgr.stdio_mgr import _choose_inject_impl, BufferReplaceStdioManager
 
 
 @pytest.fixture(scope="session")
@@ -74,10 +75,23 @@ def enable_warnings_plugin(request):
         yield
 
 
+def pytest_generate_tests(metafunc):
+    """Parametrize fixture stdio_mgr."""
+    if "stdio_mgr" not in metafunc.fixturenames:
+        return
+
+    if isinstance(sys.stdin, TextIOBase):
+        impls = [BufferReplaceStdioManager, _choose_inject_impl()]
+    else:
+        impls = [BufferReplaceStdioManager]
+
+    metafunc.parametrize("stdio_mgr", impls)
+
+
 @pytest.fixture(autouse=True, scope="session")
 def add_stdio_mgr(doctest_namespace):
     """Add stdio_mgr to doctest namespace."""
-    doctest_namespace["stdio_mgr"] = stdio_mgr
+    doctest_namespace["stdio_mgr"] = BufferReplaceStdioManager
     doctest_namespace["os"] = os
 
 
