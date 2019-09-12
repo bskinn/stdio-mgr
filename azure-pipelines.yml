@@ -43,6 +43,28 @@ jobs:
         name: 'Downgrade pytest'
         cmd: 'pip install "pytest<5"'
 
+- job: micropython
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  steps:
+    - script: sudo apt-get install -y build-essential curl libreadline-dev libffi-dev git pkg-config gcc-arm-none-eabi libnewlib-arm-none-eabi
+      displayName: Install micropython dependencies
+
+    - script: git clone --recurse-submodules https://github.com/micropython/micropython.git micropython
+      displayName: Clone micropython repo
+
+    - script: sh -c 'cd micropython/mpy-cross && make'
+      displayName: Make mpy-cross
+
+    - script: sh -c 'cd micropython/ports/unix && make axtls && make'
+      displayName: Make MicroPython
+
+    - script: micropython/ports/unix/micropython -c 'import upip; upip.install(["unittest"])'
+      displayName: Install tooling
+
+    - script: micropython/ports/unix/micropython -X heapsize=50M tests/micropython/test_micropython.py
+      displayName: Run MicroPython tests
+
 - job: flake8
   pool:
     vmImage: 'Ubuntu-16.04'
