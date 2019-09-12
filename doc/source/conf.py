@@ -15,6 +15,7 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import re
+from textwrap import dedent
 
 # -- Project information -----------------------------------------------------
 
@@ -103,6 +104,32 @@ inheritance_alias = {
 
 graphviz_output_format = "svg"
 
+
+# doctest settings
+doctest_global_setup = r"""\
+import re
+
+p_strip_memaddress = re.compile(r"^(.*) at 0x[0-9A-F]+>$", re.I)
+
+def strip_memaddress(desc_str):
+    m = p_strip_memaddress.match(desc_str)
+
+    if m:
+        return m.group(1) + ">"
+    else:
+        return desc_str
+
+def method_origins(cls):
+    skipped_methods = ["__dict__", "__doc__"]
+    methods = [m for m in dir(cls) if m not in skipped_methods]
+
+    width = 1 + max(len(m) for m in methods)
+
+    descs = {m: strip_memaddress(repr(getattr(cls, m))) for m in methods}
+
+    print(*(f"{m: <{width}} :: {descs[m]}" for m in methods), sep="\n")
+
+"""
 
 # intersphinx docset mappings
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
