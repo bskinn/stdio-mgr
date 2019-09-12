@@ -100,9 +100,16 @@ jobs:
     - script: pytest -v -W error::Warning
       displayName: Run pytest, exposing underlying warnings (Python 3.7)
 
-- job: docs_display_warnings
+- job: docs
   pool:
     vmImage: 'Ubuntu-16.04'
+  strategy:
+    matrix:
+      display_warnings:
+        make_args: '-n'
+      error_warnings:
+        make_args: '-Wn'
+
   steps:
     - task: UsePythonVersion@0
       inputs:
@@ -115,26 +122,8 @@ jobs:
     - script: pip install -r requirements-doc.txt
       displayName: Install documentation requirements
 
-    - script: cd doc && make html O=-n
+    - script: cd doc && make html O=$(make_args)
       displayName: Build docs
-
-- job: docs_error_warnings
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.7'
-
-    - script: pip install -r requirements-doc.txt
-      displayName: Install documentation requirements
-
-    # Needed for the inheritance diagram
-    - script: sudo apt-get install -y graphviz graphviz-dev libgraphviz-dev
-      displayName: Install graphviz
-
-    - script: cd doc && make html O=-Wn
-      displayName: Build docs, erroring on any build warning
 
 - job: doctests
   pool:
