@@ -62,8 +62,8 @@ jobs:
     - script: micropython/ports/unix/micropython -c 'import upip; upip.install(["unittest"])'
       displayName: Install tooling
 
-    - script: micropython/ports/unix/micropython -X heapsize=50M -m unittest
-      displayName: Run unittest
+    - script: micropython/ports/unix/micropython -X heapsize=50M tests/micropython/test_micropython.py
+      displayName: Run MicroPython tests
 
 - job: flake8
   pool:
