@@ -6,9 +6,6 @@ Attribute Inheritance
 stdio_mgr.StdioManager
 ----------------------
 
-.. runblock:: pycon
+.. command-output:: python attr_origins.py stdio_mgr StdioManager
+    :shell:
 
-    >>> from runpy import run_path  # ignore
-    >>> attr_origins = run_path("attr_origins.py")['attr_origins']  # ignore
-    >>> from stdio_mgr.stdio_mgr import StdioManager
-    >>> attr_origins(StdioManager)
