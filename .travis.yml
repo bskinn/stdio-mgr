@@ -22,8 +22,10 @@ jobs:
      - choco install python --version 3.7.2
      - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
 script:
+ - echo $TRAVIS_DIST
  - python --version
  - pip list
  - pytest --cov=src
+ - if [[ $PYTHON_MAJOR == 3 && $PYTHON_MINOR == 7 && $TRAVIS_DIST == xenial ]]; then pip install -r requirements-doc.txt; sh -c 'cd doc; make doctest'; else echo "No doctest."; fi
  - if (( $PYTHON_MAJOR == 3 && $PYTHON_MINOR == 7 )); then tox -e flake8; else echo "No flake8."; fi
  - if (( $PYTHON_MAJOR == 3 && $PYTHON_MINOR == 7 )); then codecov; else echo "No codecov."; fi
