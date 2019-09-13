@@ -15,7 +15,7 @@ Welcome to stdio-mgr!
     userguide
     api
     inheritance
-    method_inheritance
+    attr_inheritance
 
 
 Indices and tables

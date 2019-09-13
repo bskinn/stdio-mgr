@@ -1,3 +1,4 @@
 sphinx>=2
+sphinx-autorun
 sphinx-rtd-theme
 -e .
