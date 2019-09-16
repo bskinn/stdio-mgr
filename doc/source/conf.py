@@ -88,11 +88,10 @@ rst_epilog = """
 # inheritance_diagram settings
 inheritance_graph_attrs = {
     "rankdir": "TB",
-    "size": '"2000!"',
 }
 
 inheritance_node_attrs = {
-    "fontsize": 11,
+    "fontsize": 10,
 }
 
 inheritance_alias = {
