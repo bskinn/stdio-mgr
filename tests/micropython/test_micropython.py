@@ -14,7 +14,7 @@ interactions.
     \(c) Brian Skinn 2018-2019
 
 **Source Repository**
-    http://www.github.com/bskinn/stdio-mgr
+    http://github.com/bskinn/stdio-mgr
 
 **Documentation**
     See README.rst at the GitHub repository
