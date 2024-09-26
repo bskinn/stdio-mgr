@@ -1,6 +1,6 @@
 import os.path as osp
-from setuptools import setup, find_packages
 
+from setuptools import find_packages, setup
 
 with open(osp.join("src", "stdio_mgr", "version.py")) as f:
     exec(f.read())
@@ -18,7 +18,7 @@ setup(
     package_dir={"": "src"},
     provides=["stdio_mgr"],
     python_requires=">=3.4",
-    url="https://www.github.com/bskinn/stdio-mgr",
+    url="https://github.com/bskinn/stdio-mgr",
     license="MIT License",
     author="Brian Skinn",
     author_email="bskinn@alum.mit.edu",
