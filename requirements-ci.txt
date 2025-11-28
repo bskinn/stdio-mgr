@@ -1,9 +1,5 @@
 attrs>=17
-ipython
 pytest
 pytest-cov
-restview
 tox
-twine
-wget
 -e .
