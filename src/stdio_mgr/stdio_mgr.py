@@ -195,7 +195,3 @@ def stdio_mgr(in_str=""):
     new_stdin.close()
     new_stdout.close()
     new_stderr.close()
-
-
-if __name__ == "__main__":  # pragma: no cover
-    print("Module not executable.")

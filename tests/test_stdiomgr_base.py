@@ -102,7 +102,3 @@ def test_ManagedStdin():  # noqa: N802
         # 'input' should just have put str2 to out_str, *without*
         # the trailing newline, per normal 'input' behavior.
         assert str2[:-1] == out_str
-
-
-if __name__ == "__main__":
-    print("Module not executable.")
