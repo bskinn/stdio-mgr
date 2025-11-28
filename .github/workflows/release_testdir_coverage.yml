@@ -9,7 +9,6 @@ on:
       - ready_for_review
     branches:
       - stable
-      - main
 
 jobs:
   testdir_coverage:
