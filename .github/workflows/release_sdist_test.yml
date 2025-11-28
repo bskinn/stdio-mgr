@@ -35,6 +35,7 @@ jobs:
 
     - name: Build sdist
       run: |
+        pip install tox
         tox -e build
         ls -lah dist
 
