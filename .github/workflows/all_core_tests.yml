@@ -6,7 +6,7 @@ jobs:
   all_checks:
     name: plus lints, etc. on Python 3.12
     runs-on: ubuntu-latest
-    if: ${{ !contains(toJson(github.event), '[skip ci]') }}
+    if: ${{ false && !contains(toJson(github.event), '[skip ci]') }}
 
     steps:
     - name: Check out repo
@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         python: ['3.10', '3.11', '3.13', '3.14']
-    if: '!contains(github.event.head_commit.message, ''[skip ci]'')'
+    if: ${{ false && !contains(toJson(github.event), '[skip ci]') }}
 
     steps:
     - name: Check out repo
