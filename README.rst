@@ -84,7 +84,7 @@ upon exiting the managed context.
     ...     warnings.warn("'foo' has no 'bar'")
     ...     err_cap = err_.getvalue()
     >>> err_cap
-    "...UserWarning: 'foo' has no 'bar'\n..."
+    '... UserWarning: \'foo\' has no \'bar\'\n...'
 
 
 **Mock** ``stdin``\ **:**
