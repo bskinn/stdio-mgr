@@ -1,6 +1,13 @@
 [build-system]
-requires = ["wheel", "setuptools", "attrs>=17.1"]
+requires = [
+    "wheel",
+    "setuptools>77",
+]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "stdio-mgr"
+description = "Context manager for mocking/wrapping stdin/stdout/stderr"
 
 [tool.black]
 line-length = 88
