@@ -1,10 +1,10 @@
 [run]
-omit =
-    # Don't do coverage on test code
-    tests/*
-    conftest.py
 
-    # Don't cover code in the env (Termux only?)
+include =
+    src/*
+    tests/*
+
+omit =
     env*/*
 
 [report]
