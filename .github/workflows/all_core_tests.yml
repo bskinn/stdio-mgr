@@ -1,0 +1,73 @@
+name: 'PR: Run core tests'
+
+on: pull_request
+
+jobs:
+  all_checks:
+    name: plus lints, etc. on Python 3.12
+    runs-on: ubuntu-latest
+    if: ${{ !contains(toJson(github.event), '[skip ci]') }}
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v6
+
+    - name: Install Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        cache-dependency-path: |
+          requirements-ci.txt
+          requirements-flake8.txt
+
+    - name: Update pip & setuptools
+      run: python -m pip install -U pip setuptools
+
+    - name: Install & report CI dependencies
+      run: |
+        python -m pip install -U --force-reinstall -r requirements-ci.txt -r requirements-flake8.txt
+        python --version
+        pip list
+
+    - name: Run tests
+      run: |
+        pytest --cov
+        tox -e sdist_install
+
+    - name: Lint code
+      run: tox -e flake8
+
+
+  just_tests:
+    name: for Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.11', '3.13', '3.14']
+    if: '!contains(github.event.head_commit.message, ''[skip ci]'')'
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v6
+
+    - name: Install Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python }}
+        cache: 'pip'
+        cache-dependency-path: requirements-ci.txt
+
+    - name: Update pip & setuptools
+      run: python -m pip install -U pip setuptools
+
+    - name: Install & report CI dependencies
+      run: |
+        python -m pip install -U --force-reinstall -r requirements-ci.txt
+        python --version
+        pip list
+
+    - name: Run tests
+      run: |
+        pytest --cov
+        tox -e sdist_install
