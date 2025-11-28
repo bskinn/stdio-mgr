@@ -27,7 +27,7 @@ interactions.
 """
 
 
-def test_CaptureStdout():
+def test_CaptureStdout():  # noqa: N802
     """Confirm stdout capture."""
     from stdio_mgr import stdio_mgr
 
@@ -39,20 +39,20 @@ def test_CaptureStdout():
         assert s + "\n" == o.getvalue()
 
 
-def test_CaptureStderr():
+def test_CaptureStderr():  # noqa: N802
     """Confirm stderr capture."""
     import warnings
     from stdio_mgr import stdio_mgr
 
     with stdio_mgr() as (i, o, e):
         w = "This is a warning"
-        warnings.warn(w)
+        warnings.warn(w, stacklevel=2)
 
         # Warning text comes at the end of a line; newline gets added
         assert w + "\n" in e.getvalue()
 
 
-def test_DefaultStdin():
+def test_DefaultStdin():  # noqa: N802
     """Confirm stdin default-populate."""
     from stdio_mgr import stdio_mgr
 
@@ -71,7 +71,7 @@ def test_DefaultStdin():
         assert in_str[:-1] == out_str
 
 
-def test_ManagedStdin():
+def test_ManagedStdin():  # noqa: N802
     """Confirm stdin populate within context."""
     from stdio_mgr import stdio_mgr
 
