@@ -17,7 +17,7 @@ interactions.
     http://www.github.com/bskinn/stdio-mgr
 
 **Documentation**
-    See README.rst at the GitHub repository
+    See README.md at the GitHub repository
 
 **License**
     The MIT License; see |license_txt|_ for full license terms
