@@ -26,11 +26,13 @@ interactions.
 
 """
 
+import warnings
+
+from stdio_mgr import stdio_mgr
+
 
 def test_CaptureStdout():  # noqa: N802
     """Confirm stdout capture."""
-    from stdio_mgr import stdio_mgr
-
     with stdio_mgr() as (i, o, e):
         s = "test str"
         print(s)
@@ -41,9 +43,6 @@ def test_CaptureStdout():  # noqa: N802
 
 def test_CaptureStderr():  # noqa: N802
     """Confirm stderr capture."""
-    import warnings
-    from stdio_mgr import stdio_mgr
-
     with stdio_mgr() as (i, o, e):
         w = "This is a warning"
         warnings.warn(w, stacklevel=2)
@@ -54,8 +53,6 @@ def test_CaptureStderr():  # noqa: N802
 
 def test_DefaultStdin():  # noqa: N802
     """Confirm stdin default-populate."""
-    from stdio_mgr import stdio_mgr
-
     in_str = "This is a test string.\n"
 
     with stdio_mgr(in_str) as (i, o, e):
@@ -73,8 +70,6 @@ def test_DefaultStdin():  # noqa: N802
 
 def test_ManagedStdin():  # noqa: N802
     """Confirm stdin populate within context."""
-    from stdio_mgr import stdio_mgr
-
     str1 = "This is a test string."
     str2 = "This is another test string.\n"
 
