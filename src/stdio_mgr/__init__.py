@@ -26,7 +26,5 @@ interactions.
 
 """
 
-__all__ = ["stdio_mgr"]
-
-from stdio_mgr import stdio_mgr
+from stdio_mgr.stdio_mgr import stdio_mgr
 from stdio_mgr.version import __version__
