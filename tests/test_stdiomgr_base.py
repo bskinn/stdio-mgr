@@ -11,26 +11,32 @@ interactions.
     24 Mar 2018
 
 **Copyright**
-    \(c) Brian Skinn 2018-2019
+    \(c) Brian Skinn 2018-2025
 
 **Source Repository**
     http://www.github.com/bskinn/stdio-mgr
 
 **Documentation**
-    See README.rst at the GitHub repository
+    See README.md at the GitHub repository
 
 **License**
-    The MIT License; see |license_txt|_ for full license terms
+    Code: `MIT License`_
+
+    Docs & Docstrings: |CC BY 4.0|_
+
+    See |license_txt|_ for full license terms.
 
 **Members**
 
 """
 
+import warnings
 
-def test_CaptureStdout():
+from stdio_mgr import stdio_mgr
+
+
+def test_CaptureStdout():  # noqa: N802
     """Confirm stdout capture."""
-    from stdio_mgr import stdio_mgr
-
     with stdio_mgr() as (i, o, e):
         s = "test str"
         print(s)
@@ -39,23 +45,18 @@ def test_CaptureStdout():
         assert s + "\n" == o.getvalue()
 
 
-def test_CaptureStderr():
+def test_CaptureStderr():  # noqa: N802
     """Confirm stderr capture."""
-    import warnings
-    from stdio_mgr import stdio_mgr
-
     with stdio_mgr() as (i, o, e):
         w = "This is a warning"
-        warnings.warn(w)
+        warnings.warn(w, stacklevel=2)
 
         # Warning text comes at the end of a line; newline gets added
         assert w + "\n" in e.getvalue()
 
 
-def test_DefaultStdin():
+def test_DefaultStdin():  # noqa: N802
     """Confirm stdin default-populate."""
-    from stdio_mgr import stdio_mgr
-
     in_str = "This is a test string.\n"
 
     with stdio_mgr(in_str) as (i, o, e):
@@ -71,10 +72,8 @@ def test_DefaultStdin():
         assert in_str[:-1] == out_str
 
 
-def test_ManagedStdin():
+def test_ManagedStdin():  # noqa: N802
     """Confirm stdin populate within context."""
-    from stdio_mgr import stdio_mgr
-
     str1 = "This is a test string."
     str2 = "This is another test string.\n"
 
@@ -102,7 +101,3 @@ def test_ManagedStdin():
         # 'input' should just have put str2 to out_str, *without*
         # the trailing newline, per normal 'input' behavior.
         assert str2[:-1] == out_str
-
-
-if __name__ == "__main__":
-    print("Module not executable.")

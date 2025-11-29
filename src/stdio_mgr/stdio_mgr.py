@@ -11,23 +11,28 @@ interactions.
     24 Mar 2018
 
 **Copyright**
-    \(c) Brian Skinn 2018-2019
+    \(c) Brian Skinn 2018-2025
 
 **Source Repository**
     http://www.github.com/bskinn/stdio-mgr
 
 **Documentation**
-    See README.rst at the GitHub repository
+    See README.md at the GitHub repository
 
 **License**
-    The MIT License; see |license_txt|_ for full license terms
+    Code: `MIT License`_
+
+    Docs & Docstrings: |CC BY 4.0|_
+
+    See |license_txt|_ for full license terms.
 
 **Members**
 
 """
 
+import sys
 from contextlib import contextmanager
-from io import StringIO, TextIOBase
+from io import SEEK_END, SEEK_SET, StringIO, TextIOBase
 
 import attr
 
@@ -66,8 +71,6 @@ class TeeStdin(StringIO):
         instantiation call. Default is an empty |str|.
 
     """
-
-    from io import SEEK_SET, SEEK_END
 
     tee = attr.ib(validator=attr.validators.instance_of(TextIOBase))
     init_text = attr.ib(default="", validator=attr.validators.instance_of(str))
@@ -128,9 +131,9 @@ class TeeStdin(StringIO):
 
         """
         pos = self.tell()
-        self.seek(0, self.SEEK_END)
+        self.seek(0, SEEK_END)
         retval = self.write(text)
-        self.seek(pos, self.SEEK_SET)
+        self.seek(pos, SEEK_SET)
         return retval
 
 
@@ -172,8 +175,6 @@ def stdio_mgr(in_str=""):
         initially empty.
 
     """
-    import sys
-
     old_stdin = sys.stdin
     old_stdout = sys.stdout
     old_stderr = sys.stderr
@@ -195,7 +196,3 @@ def stdio_mgr(in_str=""):
     new_stdin.close()
     new_stdout.close()
     new_stderr.close()
-
-
-if __name__ == "__main__":  # pragma: no cover
-    print("Module not executable.")

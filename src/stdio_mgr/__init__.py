@@ -11,25 +11,26 @@ interactions.
     24 Mar 2018
 
 **Copyright**
-    \(c) Brian Skinn 2018-2019
+    \(c) Brian Skinn 2018-2025
 
 **Source Repository**
     http://www.github.com/bskinn/stdio-mgr
 
 **Documentation**
-    See README.rst at the GitHub repository
+    See README.md at the GitHub repository
 
 **License**
-    The MIT License; see |license_txt|_ for full license terms
+    Code: `MIT License`_
+
+    Docs & Docstrings: |CC BY 4.0|_
+
+    See |license_txt|_ for full license terms.
 
 **Members**
 
 """
 
+from stdio_mgr.stdio_mgr import stdio_mgr
+from stdio_mgr.version import __version__
 
 __all__ = ["stdio_mgr"]
-
-from .stdio_mgr import stdio_mgr
-
-
-__version__ = "1.0.1"
