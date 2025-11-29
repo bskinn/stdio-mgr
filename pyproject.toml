@@ -1,9 +1,75 @@
 [build-system]
-requires = ["wheel", "setuptools", "attrs>=17.1"]
+requires = [
+    "wheel",
+    "setuptools>77",
+]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "stdio-mgr"
+description = "Context manager for mocking/wrapping stdin/stdout/stderr"
+authors = [
+    { name = "Brian Skinn", email = "brian.skinn@gmail.com" },
+]
+license = "MIT"
+license-files = [
+    "LICENSE.txt",
+]
+classifiers = [
+    "Natural Language :: English",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Testing",
+    "Development Status :: 5 - Production/Stable",
+]
+keywords = [
+    "stdin",
+    "stdout",
+    "stderr",
+    "mock",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "attrs>=17.1",
+]
+dynamic = [
+    "version",
+    "readme",
+]
+
+[project.urls]
+Homepage = "https://github.com/bskinn/stdio-mgr"
+Changelog = "https://github.com/bskinn/stdio-mgr/blob/main/CHANGELOG.md"
+Donate = "https://github.com/sponsors/bskinn"
+
+[tool.setuptools]
+platforms = [
+    "any",
+]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "stdio_mgr.version.__version__"}
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
+]
+namespaces = false
+
 [tool.black]
-line-length = 79
+line-length = 88
 include = '''
 (
     ^/tests/

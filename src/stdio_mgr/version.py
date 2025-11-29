@@ -1,4 +1,4 @@
-r"""``stdio_mgr`` *package definition module*.
+r"""``stdio_mgr`` *version definition module*.
 
 ``stdio_mgr`` provides a context manager for convenient
 mocking and/or wrapping of ``stdin``/``stdout``/``stderr``
@@ -8,7 +8,7 @@ interactions.
     Brian Skinn (bskinn@alum.mit.edu)
 
 **File Created**
-    24 Mar 2018
+    28 Nov 2025
 
 **Copyright**
     \(c) Brian Skinn 2018-2019
@@ -26,7 +26,4 @@ interactions.
 
 """
 
-from stdio_mgr.stdio_mgr import stdio_mgr
-from stdio_mgr.version import __version__
-
-__all__ = ["stdio_mgr"]
+__version__ = "1.0.2.dev0"
