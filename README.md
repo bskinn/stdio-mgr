@@ -169,7 +169,7 @@ Available on [PyPI][pypi link target] (`pip install stdio-mgr`).
 Source on [GitHub][gh repo]. Bug reports and feature requests are welcomed at
 the [Issues][gh issues] page there.
 
-Copyright \(c) 2018-2019 Brian Skinn
+Copyright \(c) 2018-2025 Brian Skinn
 
 The `stdio-mgr` documentation (currently docstrings and README) is licensed
 under a [Creative Commons Attribution 4.0 International License][cc-by] (CC-BY).
