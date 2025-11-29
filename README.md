@@ -32,7 +32,7 @@ it provides (i) a much more concise way to mock both `stdout` and `stderr`
 at the same time, and (ii) a mechanism for mocking `stdin`, which is not
 available in `contextlib`.
 
-##### First, install:
+**First, install:**
 
 ```bash
 $ pip install stdio-mgr
@@ -46,7 +46,7 @@ All of the below examples assume `stdio_mgr` has already been imported via:
 from stdio_mgr import stdio_mgr
 ```
 
-##### Mock `stdout`:
+**Mock `stdout`:**
 
 ```py
 >>> with stdio_mgr() as (in_, out_, err_):
@@ -66,7 +66,7 @@ As currently implemented, `stdio_mgr` closes all three mocked streams upon
 exiting the managed context.
 
 
-##### Mock `stderr`:
+**Mock `stderr`:**
 
 ```py
 >>> import warnings
@@ -79,7 +79,7 @@ exiting the managed context.
 ```
 
 
-##### Mock `stdin`:
+**Mock `stdin`:**
 
 The simulated user input has to be pre-loaded to the mocked stream. **Be sure to
 include newlines in the input to correspond to each mocked** `Enter`
