@@ -80,7 +80,6 @@ jobs:
       uses: actions/download-artifact@v6
       with:
         name: 'build-artifacts'
-        path: '.'
 
     - name: Recheck build artifacts
       run: |
