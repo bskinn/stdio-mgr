@@ -80,6 +80,7 @@ jobs:
       uses: actions/download-artifact@v6
       with:
         name: 'build-artifacts'
+        path: dist/
 
     - name: Recheck build artifacts
       run: |
@@ -87,7 +88,7 @@ jobs:
         twine check $( find dist -name '*.gz' )
         twine check $( find dist -name '*.whl' )
 
-    - name: Publish package distributions to TestPyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
+    # - name: Publish package distributions to TestPyPI
+    #   uses: pypa/gh-action-pypi-publish@release/v1
+    #   with:
+    #     repository-url: https://test.pypi.org/legacy/
