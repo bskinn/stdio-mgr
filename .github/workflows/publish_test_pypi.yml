@@ -3,14 +3,19 @@ name: 'PUB: Test PyPI'
 on:
   workflow_dispatch:
     inputs:
-      sha:
-        description: Git SHA to build and publish
+      ref:
+        description: Git ref to build and publish
         type: string
         required: true
+      depth:
+        description: 'Checkout depth into the repo history'
+        required: false
+        type: number
+        default: 300
 
 jobs:
   build:
-    name: build payloads
+    name: build sdist & wheel
     runs-on: 'ubuntu-latest'
     environment: test_pypi
     concurrency:
@@ -20,6 +25,10 @@ jobs:
     steps:
     - name: Check out repo
       uses: actions/checkout@v6
+      with:
+        ref: ${{ inputs.ref }}
+        fetch-tags: true
+        fetch-depth: ${{ inputs.depth }}
 
     - name: Install Python
       uses: actions/setup-python@v6
@@ -30,9 +39,9 @@ jobs:
           requirements-dev.txt
           requirements-flake8.txt
 
-    - name: Build sdist & wheel
+    - name: Build & check sdist & wheel
       run: |
-        pip install tox
+        pip install tox twine
         tox -e build
         ls -lah dist
         twine check $( find dist -name '*.gz' )
@@ -63,10 +72,6 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: '3.12'
-        cache: 'pip'
-        cache-dependency-path: |
-          requirements-dev.txt
-          requirements-flake8.txt
 
     - name: Install twine
       run: pip install twine
@@ -75,7 +80,7 @@ jobs:
       uses: actions/download-artifact@v6
       with:
         name: 'build-artifacts'
-        path: '.'
+        path: dist/
 
     - name: Recheck build artifacts
       run: |

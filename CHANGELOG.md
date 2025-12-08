@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 #### Internal
 
+- Create ([#112]) and complete ([#113]) a `workflow_dispatch` workflow to use
+  OICD/Trusted Publishing to build and publish sdist and wheel to Test PyPI.
+
+
+### [1.0.1.1] - 2025-11-29
+
 - Convert project build config (mostly) from `setup.py` to `pyproject.toml`
   ([#108]).
   - The dynamic README stays in `setup.py`.
@@ -49,3 +55,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 [#108]: https://github.com/bskinn/stdio-mgr/pull/108
+[#112]: https://github.com/bskinn/stdio-mgr/pull/112
+[#113]: https://github.com/bskinn/stdio-mgr/pull/113
